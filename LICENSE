@@ -1,0 +1,10 @@
+This package wraps and projects the Basic Formal Ontology (BFO 2.0),
+(c) 2002-present BFO contributors, distributed under the Creative Commons
+Attribution 4.0 International License (CC-BY-4.0):
+https://creativecommons.org/licenses/by/4.0/
+
+Source ontology: https://github.com/bfo-ontology/bfo
+
+The TypeScript projection in this repository is unlicensed by amlhubs /
+agenihub for evaluation use. Contact agencewebcameleon@gmail.com for
+redistribution rights.
