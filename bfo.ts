@@ -1053,3 +1053,430 @@ export class ThreeDimensionalSpatialRegion
 // END Implementer #2: Material specializations + Immaterial + Spatial regions
 // (next: Implementer #3 — Occurrent / Process / Temporal regions)
 // ═══════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BEGIN Implementer #3: Occurrent spine + Temporal regions
+// (Occurrent • Process • ProcessBoundary • History • ProcessProfile •
+//  TemporalRegion + dimensional specializations •
+//  SpatiotemporalRegion)
+//
+// Spec-conditional notes (verified against spec/bfo_classes_only.owl):
+//   • TemporalInstant — NOT declared as a separate class in BFO 2020 OWL.
+//     It appears only as an obo:IAO_0000118 (alternative term) annotation on
+//     BFO_0000148 (ZeroDimensionalTemporalRegion). Omitted here. The synonym
+//     is documented in the JSDoc of ZeroDimensionalTemporalRegion.
+//   • TemporalInterval — NOT declared as a separate class in BFO 2020 OWL.
+//     It appears only as obo:IAO_0000116 (commentary) on BFO_0000038
+//     (OneDimensionalTemporalRegion): "A temporal interval is a special kind
+//     of one-dimensional temporal region, namely one that is self-connected
+//     (is without gaps or breaks)." Omitted here. The synonym is documented
+//     in the JSDoc of OneDimensionalTemporalRegion.
+//   • History — declared in BFO 2020 OWL as SubClassOf(BFO_0000015 = Process)
+//     at spec/bfo_classes_only.owl L1699, NOT SubClassOf(Occurrent). The
+//     implementation honours the OWL axiom (History extends Process).
+//   • ProcessProfile — declared in BFO 2020 OWL as SubClassOf(BFO_0000015 =
+//     Process) at spec/bfo_classes_only.owl L1531. Implemented as a concrete
+//     class (the OWL release does not assert isAbstract on BFO_0000144).
+//   • ProcessBoundary — declared in BFO 2020 OWL as SubClassOf(BFO_0000003
+//     = Occurrent) at spec/bfo_classes_only.owl L1309, NOT SubClassOf(Process).
+//     This matches the BFO 2 Reference treatment of process boundaries as
+//     instantaneous occurrent boundaries, not as proper temporal parts that
+//     would inherit the Process closure axiom.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 26. Occurrent (BFO_0000003) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000003
+ * @metaclass owl:Class
+ * @isAbstract true
+ * @parent Entity
+ * @rdfsLabel "occurrent"
+ * @definition "An occurrent is an entity that unfolds itself in time or it is the instantaneous boundary of such an entity (for example a beginning or an ending) or it is a temporal or spatiotemporal region which such an entity occupies_temporal_region or occupies_spatiotemporal_region. (axiom label in BFO2 Reference: [077-002])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000003, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §4 Occurrent
+ * @disjointWith Continuant (BFO_0000002) — disjointness is asserted on Continuant
+ *               in the OWL release (DisjointWith BFO_0000003); BFO_0000003 itself
+ *               does not assert outgoing disjointness.
+ * @subClassOf Entity (BFO_0000001)
+ * @owlAxioms SubClassOf(BFO_0000001);
+ *            [077-002] elucidation: occurrents unfold in time, are instantaneous
+ *            boundaries thereof, or are temporal/spatiotemporal regions occupied
+ *            by such entities.
+ *            [108-001] (forall (x) (if (Occurrent x) (exists (r) (and (SpatioTemporalRegion r) (occupiesSpatioTemporalRegion x r))));
+ *            [079-001] (forall (x) (iff (Occurrent x) (and (Entity x) (exists (y) (temporalPartOf y x))))) — Occurrent ≡ Entity that has temporal parts.
+ *            BFO 2020 declares Occurrent without a closure axiom (subclasses do not
+ *            necessarily exhaust all possibilities — example: the sum of a process
+ *            and the process boundary of another process). Asserted children:
+ *            Process (BFO_0000015), ProcessBoundary (BFO_0000035),
+ *            TemporalRegion (BFO_0000008), SpatiotemporalRegion (BFO_0000011).
+ */
+export interface IOccurrent extends IEntity {
+  // Widened to `string` so the asserted children — Process (BFO_0000015),
+  // ProcessBoundary (BFO_0000035), TemporalRegion (BFO_0000008),
+  // SpatiotemporalRegion (BFO_0000011) — declared below can narrow to their
+  // own disjoint string literals.
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractOccurrent
+  extends AbstractEntity
+  implements IOccurrent {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+// ─── 27. Process (BFO_0000015) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000015
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent Occurrent
+ * @rdfsLabel "process"
+ * @definition "p is a process = Def. p is an occurrent that has temporal proper parts and for some time t, p s-depends_on some material entity at t. (axiom label in BFO2 Reference: [083-003])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/bfo_classes_only.owl.)
+ * @bfoReferenceSection §4.1 Occurrent — Process
+ * @disjointWith TemporalRegion (BFO_0000008) — declared on BFO_0000008 in the OWL
+ *               release (DisjointWith BFO_0000015); BFO_0000015 itself does not
+ *               assert outgoing disjointness.
+ * @subClassOf Occurrent (BFO_0000003)
+ * @owlAxioms SubClassOf(BFO_0000003);
+ *            [083-003] (iff (Process a) (and (Occurrent a) (exists (b) (properTemporalPartOf b a)) (exists (c t) (and (MaterialEntity c) (specificallyDependsOnAt a c t))))) — Process ≡ Occurrent with proper temporal parts that s-depends_on some material entity at some time.
+ *            BFO 2 Reference IAO_0000116: "In BFO 2.0 'process' is, rather, the
+ *            occurrent counterpart of 'material entity'." Examples include a process
+ *            of cell-division, the flight of a bird, the life of an organism, your
+ *            process of aging. Asserted children: ProcessProfile (BFO_0000144),
+ *            History (BFO_0000182).
+ */
+export interface IProcess extends IOccurrent {
+  // Widened to `string` so the asserted children — ProcessProfile (BFO_0000144)
+  // and History (BFO_0000182) — declared below can narrow to their own disjoint
+  // string literals. The concrete `Process` leaf still narrows the discriminant
+  // via `'Process' as const` at instantiation time.
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractProcess
+  extends AbstractOccurrent
+  implements IProcess {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class Process extends AbstractProcess implements IProcess {
+  override readonly metaClass = 'Process' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+}
+
+// ─── 28. History (BFO_0000182) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000182
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent Process
+ * @rdfsLabel "history"
+ * @definition "A history is a process that is the sum of the totality of processes taking place in the spatiotemporal region occupied by a material entity or site, including processes on the surface of the entity or within the cavities to which it serves as host. (axiom label in BFO2 Reference: [138-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000182, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §4.1 Occurrent — Process — History
+ * @disjointWith ProcessProfile (BFO_0000144) — declared on BFO_0000144 in the OWL
+ *               release (DisjointWith BFO_0000182); BFO_0000182 itself does not
+ *               assert outgoing disjointness.
+ * @subClassOf Process (BFO_0000015)
+ * @owlAxioms SubClassOf(BFO_0000015);
+ *            [138-001] elucidation: history is the maximal sum of processes taking
+ *            place in the spatiotemporal region occupied by a material entity or
+ *            site (including surface processes and processes within hosted cavities).
+ *            BFO 2020 OWL release does not assert a CLIF axiom (IAO_0000602) for
+ *            History — the elucidation [138-001] in IAO_0000600 carries the formal
+ *            definition. Note: BFO 2020 OWL declares History as SubClassOf(Process),
+ *            placing it on the Process branch rather than the Occurrent branch.
+ */
+export interface IHistory extends IProcess {
+  readonly metaClass: 'History';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000182';
+}
+
+export abstract class AbstractHistory
+  extends AbstractProcess
+  implements IHistory {
+  abstract override readonly metaClass: 'History';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000182';
+}
+
+export class History extends AbstractHistory implements IHistory {
+  override readonly metaClass = 'History' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000182' as const;
+}
+
+// ─── 29. ProcessProfile (BFO_0000144) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000144
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent Process
+ * @rdfsLabel "process profile"
+ * @definition "b is a process_profile =Def. there is some process c such that b process_profile_of c (axiom label in BFO2 Reference: [093-002])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/bfo_classes_only.owl.)
+ * @bfoReferenceSection §4.1 Occurrent — Process — Process profile
+ * @disjointWith History (BFO_0000182) — asserted on BFO_0000144 in the OWL release
+ *               (DisjointWith BFO_0000182).
+ * @subClassOf Process (BFO_0000015)
+ * @owlAxioms SubClassOf(BFO_0000015); DisjointWith(BFO_0000182);
+ *            [093-002] (iff (ProcessProfile a) (exists (b) (and (Process b) (processProfileOf a b)))) — ProcessProfile ≡ Process with a process_profile_of relation to some Process.
+ *            [094-005] (forall (x y) (if (processProfileOf x y) (and (properContinuantPartOf x y) (exists (z t) (and (properOccurrentPartOf z y) (TemporalRegion t) (occupiesSpatioTemporalRegion x t) (occupiesSpatioTemporalRegion y t) (occupiesSpatioTemporalRegion z t) (not (exists (w) (and (occurrentPartOf w x) (occurrentPartOf w z))))))))).
+ *            BFO 2 Reference IAO_0000112 examples: quality process profiles
+ *            (selective abstraction over single-quality changes — mass, temperature,
+ *            aortic pressure); rate process profiles (ratios of magnitudes to elapsed
+ *            time — speed, beat frequency); beat process profiles (cyclical sub-family
+ *            of rate profiles — e.g. 60 bpm heartbeat).
+ */
+export interface IProcessProfile extends IProcess {
+  readonly metaClass: 'ProcessProfile';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000144';
+}
+
+export abstract class AbstractProcessProfile
+  extends AbstractProcess
+  implements IProcessProfile {
+  abstract override readonly metaClass: 'ProcessProfile';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000144';
+}
+
+export class ProcessProfile
+  extends AbstractProcessProfile
+  implements IProcessProfile {
+  override readonly metaClass = 'ProcessProfile' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000144' as const;
+}
+
+// ─── 30. ProcessBoundary (BFO_0000035) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000035
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent Occurrent
+ * @rdfsLabel "process boundary"
+ * @definition "p is a process boundary =Def. p is a temporal part of a process & p has no proper temporal parts. (axiom label in BFO2 Reference: [084-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/bfo_classes_only.owl.)
+ * @bfoReferenceSection §4.2 Occurrent — Process boundary
+ * @disjointWith TemporalRegion (BFO_0000008) — declared on BFO_0000008 in the OWL
+ *               release (DisjointWith BFO_0000035); BFO_0000035 itself does not
+ *               assert outgoing disjointness.
+ * @subClassOf Occurrent (BFO_0000003)
+ * @owlAxioms SubClassOf(BFO_0000003);
+ *            [084-001] (iff (ProcessBoundary a) (exists (p) (and (Process p) (temporalPartOf a p) (not (exists (b) (properTemporalPartOf b a)))))) — ProcessBoundary ≡ Occurrent that is a temporal part of some Process and has no proper temporal parts.
+ *            [085-002] (forall (x) (if (ProcessBoundary x) (exists (y) (and (ZeroDimensionalTemporalRegion y) (occupiesTemporalRegion x y))))) — every process boundary occupies a zero-dimensional temporal region.
+ *            BFO 2 Reference example: the boundary between the 2nd and 3rd year of
+ *            your life. Note: ProcessBoundary is a subClassOf Occurrent (NOT Process)
+ *            in the OWL release — the [084-001] axiom asserts the temporal-part
+ *            relation to a Process without making ProcessBoundary itself a Process.
+ */
+export interface IProcessBoundary extends IOccurrent {
+  readonly metaClass: 'ProcessBoundary';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000035';
+}
+
+export abstract class AbstractProcessBoundary
+  extends AbstractOccurrent
+  implements IProcessBoundary {
+  abstract override readonly metaClass: 'ProcessBoundary';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000035';
+}
+
+export class ProcessBoundary
+  extends AbstractProcessBoundary
+  implements IProcessBoundary {
+  override readonly metaClass = 'ProcessBoundary' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000035' as const;
+}
+
+// ─── 31. TemporalRegion (BFO_0000008) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000008
+ * @metaclass owl:Class
+ * @isAbstract true
+ * @parent Occurrent
+ * @rdfsLabel "temporal region"
+ * @definition "A temporal region is an occurrent entity that is part of time as defined relative to some reference frame. (axiom label in BFO2 Reference: [100-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000008, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §4.6 Occurrent — Temporal region
+ * @disjointWith SpatiotemporalRegion (BFO_0000011), Process (BFO_0000015), ProcessBoundary (BFO_0000035)
+ *               — all three disjointness axioms are asserted on BFO_0000008 in the OWL release.
+ * @subClassOf Occurrent (BFO_0000003)
+ * @owlAxioms SubClassOf(BFO_0000003); DisjointWith(BFO_0000011); DisjointWith(BFO_0000015); DisjointWith(BFO_0000035);
+ *            [100-001] (forall (x) (if (TemporalRegion x) (Occurrent x)));
+ *            [101-001] (forall (x y) (if (and (TemporalRegion x) (occurrentPartOf y x)) (TemporalRegion y))) — all parts of temporal regions are temporal regions;
+ *            [119-002] (forall (r) (if (TemporalRegion r) (occupiesTemporalRegion r r))) — every temporal region occupies itself.
+ *            IAO_0000116 commentary: "Temporal region doesn't have a closure axiom
+ *            because the subclasses don't exhaust all possibilities. An example would
+ *            be the mereological sum of a temporal instant and a temporal interval
+ *            that doesn't overlap the instant." Asserted children:
+ *            ZeroDimensionalTemporalRegion (BFO_0000148),
+ *            OneDimensionalTemporalRegion (BFO_0000038).
+ */
+export interface ITemporalRegion extends IOccurrent {
+  // Widened to `string` so the asserted children —
+  // ZeroDimensionalTemporalRegion (BFO_0000148) and
+  // OneDimensionalTemporalRegion (BFO_0000038) — declared below can narrow
+  // to their own disjoint string literals.
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractTemporalRegion
+  extends AbstractOccurrent
+  implements ITemporalRegion {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+// ─── 32. ZeroDimensionalTemporalRegion (BFO_0000148) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000148
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent TemporalRegion
+ * @rdfsLabel "zero-dimensional temporal region"
+ * @definition "A zero-dimensional temporal region is a temporal region that is without extent. (axiom label in BFO2 Reference: [102-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000148, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §4.6 Occurrent — Temporal region — Zero-dimensional temporal region
+ * @disjointWith OneDimensionalTemporalRegion (BFO_0000038) — declared on BFO_0000038
+ *               in the OWL release (DisjointWith BFO_0000148); BFO_0000148 itself
+ *               does not assert outgoing disjointness.
+ * @subClassOf TemporalRegion (BFO_0000008)
+ * @owlAxioms SubClassOf(BFO_0000008);
+ *            [102-001] (forall (x) (if (ZeroDimensionalTemporalRegion x) (TemporalRegion x))).
+ *            obo:IAO_0000118 alternative term: "temporal instant" — BFO 2020 OWL does
+ *            NOT declare a separate `TemporalInstant` class; the term appears only
+ *            as an IAO_0000118 alternative-term annotation on BFO_0000148. Examples:
+ *            "right now"; the moment a child is born; the moment of death; a temporal
+ *            region occupied by a process boundary.
+ */
+export interface IZeroDimensionalTemporalRegion extends ITemporalRegion {
+  readonly metaClass: 'ZeroDimensionalTemporalRegion';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000148';
+}
+
+export abstract class AbstractZeroDimensionalTemporalRegion
+  extends AbstractTemporalRegion
+  implements IZeroDimensionalTemporalRegion {
+  abstract override readonly metaClass: 'ZeroDimensionalTemporalRegion';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000148';
+}
+
+export class ZeroDimensionalTemporalRegion
+  extends AbstractZeroDimensionalTemporalRegion
+  implements IZeroDimensionalTemporalRegion {
+  override readonly metaClass = 'ZeroDimensionalTemporalRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000148' as const;
+}
+
+// ─── 33. OneDimensionalTemporalRegion (BFO_0000038) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000038
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent TemporalRegion
+ * @rdfsLabel "one-dimensional temporal region"
+ * @definition "A one-dimensional temporal region is a temporal region that is extended. (axiom label in BFO2 Reference: [103-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000038, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §4.6 Occurrent — Temporal region — One-dimensional temporal region
+ * @disjointWith ZeroDimensionalTemporalRegion (BFO_0000148) — asserted on BFO_0000038
+ *               in the OWL release (DisjointWith BFO_0000148).
+ * @subClassOf TemporalRegion (BFO_0000008)
+ * @owlAxioms SubClassOf(BFO_0000008); DisjointWith(BFO_0000148);
+ *            [103-001] (forall (x) (if (OneDimensionalTemporalRegion x) (TemporalRegion x))).
+ *            BFO 2 Reference IAO_0000116 commentary: "A temporal interval is a special
+ *            kind of one-dimensional temporal region, namely one that is self-connected
+ *            (is without gaps or breaks)." BFO 2020 OWL does NOT declare a separate
+ *            `TemporalInterval` class; the term appears only as IAO_0000116 commentary
+ *            on BFO_0000038. Example: the temporal region during which a process occurs.
+ */
+export interface IOneDimensionalTemporalRegion extends ITemporalRegion {
+  readonly metaClass: 'OneDimensionalTemporalRegion';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000038';
+}
+
+export abstract class AbstractOneDimensionalTemporalRegion
+  extends AbstractTemporalRegion
+  implements IOneDimensionalTemporalRegion {
+  abstract override readonly metaClass: 'OneDimensionalTemporalRegion';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000038';
+}
+
+export class OneDimensionalTemporalRegion
+  extends AbstractOneDimensionalTemporalRegion
+  implements IOneDimensionalTemporalRegion {
+  override readonly metaClass = 'OneDimensionalTemporalRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000038' as const;
+}
+
+// ─── 34. SpatiotemporalRegion (BFO_0000011) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000011
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent Occurrent
+ * @rdfsLabel "spatiotemporal region"
+ * @definition "A spatiotemporal region is an occurrent entity that is part of spacetime. (axiom label in BFO2 Reference: [095-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000011, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §4.5 Occurrent — Spatiotemporal region
+ * @disjointWith TemporalRegion (BFO_0000008) — declared on BFO_0000008 in the OWL
+ *               release (DisjointWith BFO_0000011); BFO_0000011 itself does not
+ *               assert outgoing disjointness.
+ * @subClassOf Occurrent (BFO_0000003)
+ * @owlAxioms SubClassOf(BFO_0000003);
+ *            [095-001] (forall (x) (if (SpatioTemporalRegion x) (Occurrent x)));
+ *            [096-001] (forall (x y) (if (and (SpatioTemporalRegion x) (occurrentPartOf y x)) (SpatioTemporalRegion y))) — all parts of spatiotemporal regions are spatiotemporal regions;
+ *            [098-001] (forall (x) (if (SpatioTemporalRegion x) (exists (y) (and (TemporalRegion y) (temporallyProjectsOnto x y))))) — every spatiotemporal region projects_onto some temporal region;
+ *            [099-001] (forall (x t) (if (SpatioTemporalRegion x) (exists (y) (and (SpatialRegion y) (spatiallyProjectsOntoAt x y t))))) — every spatiotemporal region at any time t projects_onto some spatial region at t;
+ *            [107-002] (forall (r) (if (SpatioTemporalRegion r) (occupiesSpatioTemporalRegion r r))) — every spatiotemporal region occupies itself.
+ *            BFO 2 Reference IAO_0000112 examples: the spatiotemporal region occupied
+ *            by a human life; by a process of cellular meiosis; by the development of
+ *            a cancer tumor.
+ */
+export interface ISpatiotemporalRegion extends IOccurrent {
+  readonly metaClass: 'SpatiotemporalRegion';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000011';
+}
+
+export abstract class AbstractSpatiotemporalRegion
+  extends AbstractOccurrent
+  implements ISpatiotemporalRegion {
+  abstract override readonly metaClass: 'SpatiotemporalRegion';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000011';
+}
+
+export class SpatiotemporalRegion
+  extends AbstractSpatiotemporalRegion
+  implements ISpatiotemporalRegion {
+  override readonly metaClass = 'SpatiotemporalRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000011' as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// END Implementer #3: Occurrent spine + Temporal regions
+// (next: Implementer #4 — BFO Object Properties part 1: part-of / has-part)
+// ═══════════════════════════════════════════════════════════════════════════
