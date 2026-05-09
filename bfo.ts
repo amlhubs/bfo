@@ -1480,3 +1480,1299 @@ export class SpatiotemporalRegion
 // END Implementer #3: Occurrent spine + Temporal regions
 // (next: Implementer #4 — BFO Object Properties part 1: part-of / has-part)
 // ═══════════════════════════════════════════════════════════════════════════
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BEGIN Implementer #4: BFO Object Properties Part 1
+// (ObjectProperty root marker • continuant_part_of family •
+//  occurrent_part_of family • member_part_of family •
+//  temporal-lifecycle: exists_at, has_history, has_first/last_instant)
+//
+// Spec source: spec/src/ontology/owl-group/bfo.owl (the BFO 2.0 / 2014-05-03
+// merged OWL release that carries both Class and ObjectProperty declarations
+// — the spec/bfo.owl at the directory root is BFO 1.1 with no BFO_xxxxxxx
+// IRIs, and spec/bfo_classes_only.owl is the BFO 2.0 / 2019-08-26 classes-only
+// projection that explicitly excludes relations per its own ontology comment:
+// "The BFO 2.0 OWL is a classes-only specification. The incorporation of core
+// relations has been held over for a later version." The owl-group/bfo.owl
+// is therefore the authoritative ObjectProperty source vendored in this
+// submodule.
+//
+// Discriminant pattern: every interface here keeps `metaClass`/`iri`/`rdfsLabel`/
+// `domain`/`range`/`inverseOf`/`subPropertyOf`/`characteristics` typed as the
+// broad `IObjectProperty` shape (string / ReadonlyArray<string>), letting
+// each abstract class extend its TypeScript parent without literal-type
+// collisions on inherited members. Concrete leaves narrow every discriminant
+// via `as const` initialization — the same pattern Implementer #1/#2/#3 used
+// for the Class spine (e.g. `MaterialEntity` declares
+// `override readonly metaClass = 'MaterialEntity' as const` while
+// `IMaterialEntity` widens to `string` so subclasses can supply their own
+// disjoint literals). Static-typed reads at the call site recover the narrowed
+// literal automatically thanks to TypeScript's `as const` flow analysis.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 0. ObjectProperty (root marker for BFO 2020 owl:ObjectProperty declarations) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @metaclass owl:ObjectProperty (root marker for the BFO 2020 ObjectProperty surface)
+ * @isAbstract true
+ * @parent (root)
+ * @definition Marker root for every BFO 2020 owl:ObjectProperty declared in
+ *             spec/src/ontology/owl-group/bfo.owl. Concrete properties extend
+ *             AbstractObjectProperty and supply registry-bound `as const` literals
+ *             for `metaClass`, `iri`, `rdfsLabel`, `domain`, `range`, and the
+ *             optional `inverseOf` / `subPropertyOf` / `characteristics` discriminants
+ *             when the underlying OWL declares them.
+ */
+export interface IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+  readonly rdfsLabel: string;
+  readonly domain: string;
+  readonly range: string;
+  readonly inverseOf?: string;
+  readonly subPropertyOf?: ReadonlyArray<string>;
+  readonly characteristics?: ReadonlyArray<
+    | 'Reflexive'
+    | 'Irreflexive'
+    | 'Transitive'
+    | 'Symmetric'
+    | 'Asymmetric'
+    | 'Functional'
+    | 'InverseFunctional'
+  >;
+}
+
+export abstract class AbstractObjectProperty implements IObjectProperty {
+  abstract readonly metaClass: string;
+  abstract readonly iri: string;
+  abstract readonly rdfsLabel: string;
+  abstract readonly domain: string;
+  abstract readonly range: string;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PART-OF FAMILY (CONTINUANTS) — BFO_0000176, BFO_0000178, BFO_0000177,
+//   BFO_0000186, BFO_0000110, BFO_0000187, BFO_0000175, BFO_0000174,
+//   BFO_0000137, BFO_0000111
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 1. ContinuantPartOf (BFO_0000176) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000176
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "part of continuant at some time"
+ * @definition "[copied from inverse property 'has continuant part at some time'] b has_continuant_part c at t = Def. c continuant_part_of b at t. (axiom label in BFO2 Reference: [006-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl;
+ *              the elucidation IAO_0000600 reads "b continuant_part_of c at t =Def.
+ *              b is a part of c at t & t is a time & b and c are continuants.
+ *              (axiom label in BFO2 Reference: [002-001])".)
+ * @bfoReferenceSection §2.1 Continuant — part_of relation
+ * @domain Continuant (BFO_0000002)
+ * @range Continuant (BFO_0000002)
+ * @inverseOf BFO_0000178 (has_continuant_part)
+ * @characteristics Reflexive, Transitive, Antisymmetric, satisfies unique product, satisfies weak supplementation
+ *                  (declared via obo:IAO_0000601 axioms [111-002], [110-001], [120-001],
+ *                  [122-001], [121-001]; OWL does not declare these as `rdf:type`
+ *                  characteristics on BFO_0000176 itself but its subPropertyOf BFO_0000177
+ *                  is declared as `owl:TransitiveProperty`.)
+ * @owlAxioms rdfs:domain BFO_0000002; rdfs:range BFO_0000002;
+ *            owl:inverseOf BFO_0000178;
+ *            [047-002] if b continuant_part_of c at t and b is an independent continuant, then b is located_in c at t;
+ *            [028-001] iff (ImmaterialEntity a) (and (IndependentContinuant a) (not (exists (b t) (and (MaterialEntity b) (continuantPartOfAt b a t)))))
+ */
+export interface IContinuantPartOf extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractContinuantPartOf
+  extends AbstractObjectProperty
+  implements IContinuantPartOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ContinuantPartOf
+  extends AbstractContinuantPartOf
+  implements IContinuantPartOf {
+  override readonly metaClass = 'ContinuantPartOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000176' as const;
+  override readonly rdfsLabel = 'part of continuant at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000178' as const;
+}
+
+// ─── 2. HasContinuantPart (BFO_0000178) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000178
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "has continuant part at some time"
+ * @definition "b has_continuant_part c at t = Def. c continuant_part_of b at t. (axiom label in BFO2 Reference: [006-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.1 Continuant — has_part inverse relation
+ * @domain Continuant (BFO_0000002)
+ * @range Continuant (BFO_0000002)
+ * @inverseOf BFO_0000176 (continuant_part_of) — declared on BFO_0000176; the
+ *            owl:inverseOf assertion is one-sided in the OWL release.
+ * @owlAxioms rdfs:domain BFO_0000002; rdfs:range BFO_0000002;
+ *            [006-001] iff (hasContinuantPartAt a b t) (continuantPartOfAt b a t)
+ */
+export interface IHasContinuantPart extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasContinuantPart
+  extends AbstractObjectProperty
+  implements IHasContinuantPart {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasContinuantPart
+  extends AbstractHasContinuantPart
+  implements IHasContinuantPart {
+  override readonly metaClass = 'HasContinuantPart' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000178' as const;
+  override readonly rdfsLabel = 'has continuant part at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+}
+
+// ─── 3. ContinuantPartOfAtAllTimes (BFO_0000177) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000177
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent ContinuantPartOf (BFO_0000176)
+ * @rdfsLabel "part of continuant at all times"
+ * @definition "[copied from inverse property 'has continuant part at all times that part exists'] forall(t) exists_at(y,t) -> exists_at(x,t) and 'has continuant part'(x,y,t)"
+ *             (sourced from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl; the
+ *              elucidation IAO_0000600 reads "b continuant_part_of c at t =Def.
+ *              b is a part of c at t & t is a time & b and c are continuants.
+ *              (axiom label in BFO2 Reference: [002-001])".)
+ * @bfoReferenceSection §2.1 Continuant — part_of (universal time index)
+ * @domain Continuant (BFO_0000002) — inherited from BFO_0000176; not re-asserted
+ *         on BFO_0000177 directly in the OWL.
+ * @range Continuant (BFO_0000002) — inherited from BFO_0000176; not re-asserted
+ *        on BFO_0000177 directly in the OWL.
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`
+ *                  on BFO_0000177 in the OWL release.
+ * @subPropertyOf BFO_0000176 (continuant_part_of)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`; rdfs:subPropertyOf BFO_0000176
+ */
+export interface IContinuantPartOfAtAllTimes extends IContinuantPartOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractContinuantPartOfAtAllTimes
+  extends AbstractContinuantPartOf
+  implements IContinuantPartOfAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ContinuantPartOfAtAllTimes
+  extends AbstractContinuantPartOfAtAllTimes
+  implements IContinuantPartOfAtAllTimes {
+  override readonly metaClass = 'ContinuantPartOfAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000177' as const;
+  override readonly rdfsLabel = 'part of continuant at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly subPropertyOf = ['http://purl.obolibrary.org/obo/BFO_0000176'] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 4. PartOfContinuantAtAllTimesThatWholeExists (BFO_0000186) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000186
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent ContinuantPartOf (BFO_0000176)
+ * @rdfsLabel "part of continuant at all times that whole exists"
+ * @definition "forall(t) exists_at(y,t) -> exists_at(x,t) and 'part of continuant'(x,y,t)"
+ *             (sourced from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl;
+ *              IAO_0000116 carries the curator note "Unlike the rest of the
+ *              temporalized relations which temporally quantify over existence
+ *              of the subject of the relation, this relation temporally quantifies
+ *              over the existence of the object of the relation.")
+ * @bfoReferenceSection §2.1 Continuant — whole-existence-quantified part_of
+ * @domain Continuant (BFO_0000002)
+ * @range Continuant (BFO_0000002)
+ * @inverseOf BFO_0000110 (has_continuant_part_at_all_times)
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000176 (continuant_part_of)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`; rdfs:domain BFO_0000002;
+ *            rdfs:range BFO_0000002; owl:inverseOf BFO_0000110;
+ *            rdfs:subPropertyOf BFO_0000176
+ */
+export interface IPartOfContinuantAtAllTimesThatWholeExists extends IContinuantPartOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractPartOfContinuantAtAllTimesThatWholeExists
+  extends AbstractContinuantPartOf
+  implements IPartOfContinuantAtAllTimesThatWholeExists {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class PartOfContinuantAtAllTimesThatWholeExists
+  extends AbstractPartOfContinuantAtAllTimesThatWholeExists
+  implements IPartOfContinuantAtAllTimesThatWholeExists {
+  override readonly metaClass = 'PartOfContinuantAtAllTimesThatWholeExists' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000186' as const;
+  override readonly rdfsLabel = 'part of continuant at all times that whole exists' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000110' as const;
+  readonly subPropertyOf = ['http://purl.obolibrary.org/obo/BFO_0000176'] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 5. HasContinuantPartAtAllTimes (BFO_0000110) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000110
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasContinuantPart (BFO_0000178)
+ * @rdfsLabel "has continuant part at all times"
+ * @definition "b has_continuant_part c at t = Def. c continuant_part_of b at t. (axiom label in BFO2 Reference: [006-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.1 Continuant — universal-time-quantified has_part
+ * @domain Continuant (BFO_0000002) — inherited from BFO_0000178; not re-asserted
+ *         on BFO_0000110 directly in the OWL.
+ * @range Continuant (BFO_0000002) — inherited from BFO_0000178; not re-asserted
+ *        on BFO_0000110 directly in the OWL.
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000178 (has_continuant_part)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:subPropertyOf BFO_0000178;
+ *            [006-001] iff (hasContinuantPartAt a b t) (continuantPartOfAt b a t);
+ *            owl:inverseOf BFO_0000186 (asserted on BFO_0000186, one-sided)
+ */
+export interface IHasContinuantPartAtAllTimes extends IHasContinuantPart {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasContinuantPartAtAllTimes
+  extends AbstractHasContinuantPart
+  implements IHasContinuantPartAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasContinuantPartAtAllTimes
+  extends AbstractHasContinuantPartAtAllTimes
+  implements IHasContinuantPartAtAllTimes {
+  override readonly metaClass = 'HasContinuantPartAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000110' as const;
+  override readonly rdfsLabel = 'has continuant part at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly subPropertyOf = ['http://purl.obolibrary.org/obo/BFO_0000178'] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 6. HasContinuantPartAtAllTimesThatPartExists (BFO_0000187) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000187
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasContinuantPart (BFO_0000178)
+ * @rdfsLabel "has continuant part at all times that part exists"
+ * @definition "forall(t) exists_at(y,t) -> exists_at(x,t) and 'has continuant part'(x,y,t)"
+ *             (sourced from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl;
+ *              IAO_0000116 reads "Unlike the rest of the temporalized relations
+ *              which temporally quantify over existence of the subject of the
+ *              relation, this relation temporally quantifies over the existence
+ *              of the object of the relation.")
+ * @bfoReferenceSection §2.1 Continuant — part-existence-quantified has_part
+ * @domain Continuant (BFO_0000002)
+ * @range Continuant (BFO_0000002)
+ * @inverseOf BFO_0000177 (continuant_part_of_at_all_times)
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000178 (has_continuant_part)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`; rdfs:domain BFO_0000002;
+ *            rdfs:range BFO_0000002; owl:inverseOf BFO_0000177;
+ *            rdfs:subPropertyOf BFO_0000178
+ */
+export interface IHasContinuantPartAtAllTimesThatPartExists extends IHasContinuantPart {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasContinuantPartAtAllTimesThatPartExists
+  extends AbstractHasContinuantPart
+  implements IHasContinuantPartAtAllTimesThatPartExists {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasContinuantPartAtAllTimesThatPartExists
+  extends AbstractHasContinuantPartAtAllTimesThatPartExists
+  implements IHasContinuantPartAtAllTimesThatPartExists {
+  override readonly metaClass = 'HasContinuantPartAtAllTimesThatPartExists' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000187' as const;
+  override readonly rdfsLabel = 'has continuant part at all times that part exists' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000177' as const;
+  readonly subPropertyOf = ['http://purl.obolibrary.org/obo/BFO_0000178'] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 7. ProperContinuantPartOf (BFO_0000175) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000175
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent ContinuantPartOf (BFO_0000176)
+ * @rdfsLabel "proper part of continuant at some time"
+ * @definition "b proper_continuant_part_of c at t =Def. b continuant_part_of c at t & b and c are not identical. (axiom label in BFO2 Reference: [004-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.1 Continuant — proper part_of
+ * @domain Continuant (BFO_0000002)
+ * @range Continuant (BFO_0000002)
+ * @inverseOf BFO_0000174 (has_proper_continuant_part_at_some_time)
+ * @characteristics Irreflexive — implied by definition (b and c are not identical);
+ *                  not declared as `rdf:type owl:IrreflexiveProperty` in the OWL release,
+ *                  so this is a definitional rather than declared characteristic.
+ * @subPropertyOf BFO_0000176 (continuant_part_of)
+ * @owlAxioms rdfs:domain BFO_0000002; rdfs:range BFO_0000002;
+ *            owl:inverseOf BFO_0000174; rdfs:subPropertyOf BFO_0000176;
+ *            [004-001] iff (properContinuantPartOfAt a b t) (and (continuantPartOfAt a b t) (not (= a b)))
+ */
+export interface IProperContinuantPartOf extends IContinuantPartOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractProperContinuantPartOf
+  extends AbstractContinuantPartOf
+  implements IProperContinuantPartOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ProperContinuantPartOf
+  extends AbstractProperContinuantPartOf
+  implements IProperContinuantPartOf {
+  override readonly metaClass = 'ProperContinuantPartOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000175' as const;
+  override readonly rdfsLabel = 'proper part of continuant at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000174' as const;
+  readonly subPropertyOf = ['http://purl.obolibrary.org/obo/BFO_0000176'] as const;
+}
+
+// ─── 8. HasProperContinuantPart (BFO_0000174) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000174
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasContinuantPart (BFO_0000178)
+ * @rdfsLabel "has proper continuant part at some time"
+ * @definition "b has_proper_continuant_part c at t = Def. c proper_continuant_part_of b at t. [XXX-001"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.1 Continuant — has_proper_part inverse relation
+ * @domain Continuant (BFO_0000002)
+ * @range Continuant (BFO_0000002)
+ * @inverseOf BFO_0000175 (proper_continuant_part_of) — declared on BFO_0000175.
+ * @subPropertyOf BFO_0000178 (has_continuant_part)
+ * @owlAxioms rdfs:domain BFO_0000002; rdfs:range BFO_0000002;
+ *            rdfs:subPropertyOf BFO_0000178
+ */
+export interface IHasProperContinuantPart extends IHasContinuantPart {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasProperContinuantPart
+  extends AbstractHasContinuantPart
+  implements IHasProperContinuantPart {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasProperContinuantPart
+  extends AbstractHasProperContinuantPart
+  implements IHasProperContinuantPart {
+  override readonly metaClass = 'HasProperContinuantPart' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000174' as const;
+  override readonly rdfsLabel = 'has proper continuant part at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly subPropertyOf = ['http://purl.obolibrary.org/obo/BFO_0000178'] as const;
+}
+
+// ─── 9. ProperContinuantPartOfAtAllTimes (BFO_0000137) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000137
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent ProperContinuantPartOf (BFO_0000175) and ContinuantPartOfAtAllTimes (BFO_0000177)
+ *   — multi-parent in the OWL via two rdfs:subPropertyOf assertions; we extend the
+ *   first sibling abstract (BFO_0000175 / AbstractProperContinuantPartOf) and
+ *   declare BFO_0000177 only in the concrete `subPropertyOf` array.
+ * @rdfsLabel "proper part of continuant at all times"
+ * @definition "b proper_continuant_part_of c at t =Def. b continuant_part_of c at t & b and c are not identical. (axiom label in BFO2 Reference: [004-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.1 Continuant — universal-time-quantified proper part_of
+ * @domain Continuant (BFO_0000002) — inherited; not re-asserted on BFO_0000137 directly.
+ * @range Continuant (BFO_0000002) — inherited; not re-asserted on BFO_0000137 directly.
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000175 (proper_continuant_part_of), BFO_0000177 (continuant_part_of_at_all_times)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:subPropertyOf BFO_0000175; rdfs:subPropertyOf BFO_0000177
+ */
+export interface IProperContinuantPartOfAtAllTimes extends IProperContinuantPartOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractProperContinuantPartOfAtAllTimes
+  extends AbstractProperContinuantPartOf
+  implements IProperContinuantPartOfAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ProperContinuantPartOfAtAllTimes
+  extends AbstractProperContinuantPartOfAtAllTimes
+  implements IProperContinuantPartOfAtAllTimes {
+  override readonly metaClass = 'ProperContinuantPartOfAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000137' as const;
+  override readonly rdfsLabel = 'proper part of continuant at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000174' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000175',
+    'http://purl.obolibrary.org/obo/BFO_0000177',
+  ] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 10. HasProperContinuantPartAtAllTimes (BFO_0000111) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000111
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasProperContinuantPart (BFO_0000174) and HasContinuantPartAtAllTimes (BFO_0000110)
+ *   — multi-parent in the OWL via two rdfs:subPropertyOf assertions; we extend the
+ *   first sibling abstract (BFO_0000174 / AbstractHasProperContinuantPart) and
+ *   declare BFO_0000110 only in the concrete `subPropertyOf` array.
+ * @rdfsLabel "has proper continuant part at all times"
+ * @definition "b has_proper_continuant_part c at t = Def. c proper_continuant_part_of b at t. [XXX-001"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.1 Continuant — universal-time-quantified has_proper_part
+ * @domain Continuant (BFO_0000002) — inherited; not re-asserted on BFO_0000111 directly.
+ * @range Continuant (BFO_0000002) — inherited; not re-asserted on BFO_0000111 directly.
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000110 (has_continuant_part_at_all_times), BFO_0000174 (has_proper_continuant_part)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:subPropertyOf BFO_0000110; rdfs:subPropertyOf BFO_0000174
+ */
+export interface IHasProperContinuantPartAtAllTimes extends IHasProperContinuantPart {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasProperContinuantPartAtAllTimes
+  extends AbstractHasProperContinuantPart
+  implements IHasProperContinuantPartAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasProperContinuantPartAtAllTimes
+  extends AbstractHasProperContinuantPartAtAllTimes
+  implements IHasProperContinuantPartAtAllTimes {
+  override readonly metaClass = 'HasProperContinuantPartAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000111' as const;
+  override readonly rdfsLabel = 'has proper continuant part at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000110',
+    'http://purl.obolibrary.org/obo/BFO_0000174',
+  ] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MEMBER-PART-OF FAMILY (CONTINUANTS) — BFO_0000129, BFO_0000115,
+//   BFO_0000173, BFO_0000172
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 11. MemberPartOf (BFO_0000129) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000129
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent ProperContinuantPartOf (BFO_0000175) and ContinuantPartOf (BFO_0000176)
+ *   — multi-parent in the OWL; we extend the more specific sibling abstract
+ *   (BFO_0000175 / AbstractProperContinuantPartOf) and declare BFO_0000176
+ *   only in the concrete `subPropertyOf` array.
+ * @rdfsLabel "member part of at some time"
+ * @definition "b member_part_of c at t =Def. b is an object & there is at t a mutually exhaustive and pairwise disjoint partition of c into objects x1, …, xn (for some n > 1) with b = xi for some 1 <= i <= n. (axiom label in BFO2 Reference: [026-004])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.1 Continuant — Object aggregate / member_part_of
+ * @domain Continuant (BFO_0000002)
+ * @range Continuant (BFO_0000002)
+ * @inverseOf BFO_0000115 (has_member_part_at_some_time)
+ * @subPropertyOf BFO_0000175 (proper_continuant_part_of), BFO_0000176 (continuant_part_of)
+ * @owlAxioms rdfs:domain BFO_0000002; rdfs:range BFO_0000002;
+ *            owl:inverseOf BFO_0000115;
+ *            rdfs:subPropertyOf BFO_0000175; rdfs:subPropertyOf BFO_0000176;
+ *            [104-001] (forall (x y t) (if (memberPartOfAt x y t) (continuantPartOfAt x y t)))
+ */
+export interface IMemberPartOf extends IProperContinuantPartOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractMemberPartOf
+  extends AbstractProperContinuantPartOf
+  implements IMemberPartOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class MemberPartOf
+  extends AbstractMemberPartOf
+  implements IMemberPartOf {
+  override readonly metaClass = 'MemberPartOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000129' as const;
+  override readonly rdfsLabel = 'member part of at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000115' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000175',
+    'http://purl.obolibrary.org/obo/BFO_0000176',
+  ] as const;
+}
+
+// ─── 12. HasMemberPart (BFO_0000115) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000115
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasContinuantPart (BFO_0000178)
+ * @rdfsLabel "has member part at some time"
+ * @definition "[copied from inverse property 'member part of at some time'] b member_part_of c at t =Def. b is an object & there is at t a mutually exhaustive and pairwise disjoint partition of c into objects x1, …, xn (for some n > 1) with b = xi for some 1 <= i <= n. (axiom label in BFO2 Reference: [026-004])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.1 Continuant — Object aggregate / has_member_part inverse
+ * @domain Continuant (BFO_0000002)
+ * @range Continuant (BFO_0000002)
+ * @inverseOf BFO_0000129 (member_part_of) — declared on BFO_0000129.
+ * @subPropertyOf BFO_0000178 (has_continuant_part)
+ * @owlAxioms rdfs:domain BFO_0000002; rdfs:range BFO_0000002;
+ *            rdfs:subPropertyOf BFO_0000178
+ */
+export interface IHasMemberPart extends IHasContinuantPart {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasMemberPart
+  extends AbstractHasContinuantPart
+  implements IHasMemberPart {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasMemberPart
+  extends AbstractHasMemberPart
+  implements IHasMemberPart {
+  override readonly metaClass = 'HasMemberPart' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000115' as const;
+  override readonly rdfsLabel = 'has member part at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly subPropertyOf = ['http://purl.obolibrary.org/obo/BFO_0000178'] as const;
+}
+
+// ─── 13. MemberPartOfAtAllTimes (BFO_0000173) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000173
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent MemberPartOf (BFO_0000129), ProperContinuantPartOfAtAllTimes (BFO_0000137),
+ *   and ContinuantPartOfAtAllTimes (BFO_0000177) — three rdfs:subPropertyOf
+ *   assertions in the OWL; we extend the most-specific sibling abstract
+ *   (BFO_0000129 / AbstractMemberPartOf) and declare BFO_0000137 + BFO_0000177
+ *   only in the concrete `subPropertyOf` array.
+ * @rdfsLabel "member part of at all times"
+ * @definition "b member_part_of c at t =Def. b is an object & there is at t a mutually exhaustive and pairwise disjoint partition of c into objects x1, …, xn (for some n > 1) with b = xi for some 1 <= i <= n. (axiom label in BFO2 Reference: [026-004])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.1 Continuant — universal-time-quantified member_part_of
+ * @domain Continuant (BFO_0000002) — inherited.
+ * @range Continuant (BFO_0000002) — inherited.
+ * @subPropertyOf BFO_0000129 (member_part_of), BFO_0000137 (proper_continuant_part_of_at_all_times), BFO_0000177 (continuant_part_of_at_all_times)
+ * @owlAxioms rdfs:subPropertyOf BFO_0000129;
+ *            rdfs:subPropertyOf BFO_0000137; rdfs:subPropertyOf BFO_0000177;
+ *            [104-001] (forall (x y t) (if (memberPartOfAt x y t) (continuantPartOfAt x y t)))
+ */
+export interface IMemberPartOfAtAllTimes extends IMemberPartOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractMemberPartOfAtAllTimes
+  extends AbstractMemberPartOf
+  implements IMemberPartOfAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class MemberPartOfAtAllTimes
+  extends AbstractMemberPartOfAtAllTimes
+  implements IMemberPartOfAtAllTimes {
+  override readonly metaClass = 'MemberPartOfAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000173' as const;
+  override readonly rdfsLabel = 'member part of at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000115' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000129',
+    'http://purl.obolibrary.org/obo/BFO_0000137',
+    'http://purl.obolibrary.org/obo/BFO_0000177',
+  ] as const;
+}
+
+// ─── 14. HasMemberPartAtAllTimes (BFO_0000172) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000172
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasContinuantPartAtAllTimes (BFO_0000110), HasProperContinuantPartAtAllTimes (BFO_0000111),
+ *   and HasMemberPart (BFO_0000115) — three rdfs:subPropertyOf assertions in
+ *   the OWL; we extend the most-specific sibling abstract (BFO_0000115 /
+ *   AbstractHasMemberPart) and declare BFO_0000110 + BFO_0000111 only in the
+ *   concrete `subPropertyOf` array.
+ * @rdfsLabel "has member part at all times"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000172.)
+ *             Inherits the [copied-from-inverse] elucidation from BFO_0000129:
+ *             "b member_part_of c at t =Def. b is an object & there is at t a
+ *             mutually exhaustive and pairwise disjoint partition of c into
+ *             objects x1, …, xn (for some n > 1) with b = xi for some
+ *             1 <= i <= n. (axiom label in BFO2 Reference: [026-004])"
+ * @bfoReferenceSection §2.1 Continuant — universal-time-quantified has_member_part
+ * @domain Continuant (BFO_0000002) — inherited.
+ * @range Continuant (BFO_0000002) — inherited.
+ * @subPropertyOf BFO_0000110 (has_continuant_part_at_all_times),
+ *                BFO_0000111 (has_proper_continuant_part_at_all_times),
+ *                BFO_0000115 (has_member_part_at_some_time)
+ * @owlAxioms rdfs:subPropertyOf BFO_0000110;
+ *            rdfs:subPropertyOf BFO_0000111; rdfs:subPropertyOf BFO_0000115
+ */
+export interface IHasMemberPartAtAllTimes extends IHasMemberPart {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasMemberPartAtAllTimes
+  extends AbstractHasMemberPart
+  implements IHasMemberPartAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasMemberPartAtAllTimes
+  extends AbstractHasMemberPartAtAllTimes
+  implements IHasMemberPartAtAllTimes {
+  override readonly metaClass = 'HasMemberPartAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000172' as const;
+  override readonly rdfsLabel = 'has member part at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000110',
+    'http://purl.obolibrary.org/obo/BFO_0000111',
+    'http://purl.obolibrary.org/obo/BFO_0000115',
+  ] as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PART-OF FAMILY (OCCURRENTS) — BFO_0000132, BFO_0000117, BFO_0000138,
+//   BFO_0000118, BFO_0000139, BFO_0000121, BFO_0000136, BFO_0000181
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 15. OccurrentPartOf (BFO_0000132) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000132
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "part of occurrent"
+ * @definition "[copied from inverse property 'has occurrent part'] b has_occurrent_part c = Def. c occurrent_part_of b. (axiom label in BFO2 Reference: [007-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl;
+ *              the elucidation IAO_0000600 reads "b occurrent_part_of c =Def.
+ *              b is a part of c & b and c are occurrents. (axiom label in BFO2
+ *              Reference: [003-002])".)
+ * @bfoReferenceSection §3.1 Occurrent — part_of relation
+ * @domain Occurrent (BFO_0000003)
+ * @range Occurrent (BFO_0000003)
+ * @inverseOf BFO_0000117 (has_occurrent_part)
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`;
+ *                  also Reflexive [113-002], Antisymmetric [123-001], satisfies
+ *                  unique product [125-001] and weak supplementation [124-001]
+ *                  per IAO_0000601 axioms (not as `rdf:type` characteristics).
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:domain BFO_0000003; rdfs:range BFO_0000003;
+ *            owl:inverseOf BFO_0000117;
+ *            [113-002] (forall (x) (if (Occurrent x) (occurrentPartOf x x))) — reflexivity;
+ *            [112-001] (forall (x y z) (if (and (occurrentPartOf x y) (occurrentPartOf y z)) (occurrentPartOf x z))) — transitivity;
+ *            [123-001] antisymmetry; [124-001] weak supplementation; [125-001] unique product.
+ */
+export interface IOccurrentPartOf extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractOccurrentPartOf
+  extends AbstractObjectProperty
+  implements IOccurrentPartOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class OccurrentPartOf
+  extends AbstractOccurrentPartOf
+  implements IOccurrentPartOf {
+  override readonly metaClass = 'OccurrentPartOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000132' as const;
+  override readonly rdfsLabel = 'part of occurrent' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000117' as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 16. HasOccurrentPart (BFO_0000117) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000117
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "has occurrent part"
+ * @definition "b has_occurrent_part c = Def. c occurrent_part_of b. (axiom label in BFO2 Reference: [007-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §3.1 Occurrent — has_part inverse relation
+ * @domain Occurrent (BFO_0000003)
+ * @range Occurrent (BFO_0000003)
+ * @inverseOf BFO_0000132 (occurrent_part_of) — declared on BFO_0000132.
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:domain BFO_0000003; rdfs:range BFO_0000003;
+ *            [007-001] iff (hasOccurrentPart a b) (occurrentPartOf b a)
+ */
+export interface IHasOccurrentPart extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasOccurrentPart
+  extends AbstractObjectProperty
+  implements IHasOccurrentPart {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasOccurrentPart
+  extends AbstractHasOccurrentPart
+  implements IHasOccurrentPart {
+  override readonly metaClass = 'HasOccurrentPart' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000117' as const;
+  override readonly rdfsLabel = 'has occurrent part' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 17. ProperOccurrentPartOf (BFO_0000138) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000138
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent OccurrentPartOf (BFO_0000132)
+ * @rdfsLabel "proper part of occurrent"
+ * @definition "b proper_occurrent_part_of c =Def. b occurrent_part_of c & b and c are not identical. (axiom label in BFO2 Reference: [005-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §3.1 Occurrent — proper part_of
+ * @domain Occurrent (BFO_0000003)
+ * @range Occurrent (BFO_0000003)
+ * @inverseOf BFO_0000118 (has_proper_occurrent_part)
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`;
+ *                  Irreflexive — implied by definition (b and c are not identical),
+ *                  not declared as `rdf:type owl:IrreflexiveProperty` in the OWL.
+ * @subPropertyOf BFO_0000132 (occurrent_part_of)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:domain BFO_0000003; rdfs:range BFO_0000003;
+ *            owl:inverseOf BFO_0000118; rdfs:subPropertyOf BFO_0000132;
+ *            [005-001] iff (properOccurrentPartOf a b) (and (occurrentPartOf a b) (not (= a b)))
+ */
+export interface IProperOccurrentPartOf extends IOccurrentPartOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractProperOccurrentPartOf
+  extends AbstractOccurrentPartOf
+  implements IProperOccurrentPartOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ProperOccurrentPartOf
+  extends AbstractProperOccurrentPartOf
+  implements IProperOccurrentPartOf {
+  override readonly metaClass = 'ProperOccurrentPartOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000138' as const;
+  override readonly rdfsLabel = 'proper part of occurrent' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000118' as const;
+  readonly subPropertyOf = ['http://purl.obolibrary.org/obo/BFO_0000132'] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 18. HasProperOccurrentPart (BFO_0000118) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000118
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasOccurrentPart (BFO_0000117)
+ * @rdfsLabel "has proper occurrent part"
+ * @definition "b has_proper_occurrent_part c = Def. c proper_occurrent_part_of b. [XXX-001"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §3.1 Occurrent — has_proper_part inverse relation
+ * @domain Occurrent (BFO_0000003)
+ * @range Occurrent (BFO_0000003)
+ * @inverseOf BFO_0000138 (proper_occurrent_part_of) — declared on BFO_0000138.
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000117 (has_occurrent_part)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:domain BFO_0000003; rdfs:range BFO_0000003;
+ *            rdfs:subPropertyOf BFO_0000117
+ */
+export interface IHasProperOccurrentPart extends IHasOccurrentPart {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasProperOccurrentPart
+  extends AbstractHasOccurrentPart
+  implements IHasProperOccurrentPart {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasProperOccurrentPart
+  extends AbstractHasProperOccurrentPart
+  implements IHasProperOccurrentPart {
+  override readonly metaClass = 'HasProperOccurrentPart' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000118' as const;
+  override readonly rdfsLabel = 'has proper occurrent part' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  readonly subPropertyOf = ['http://purl.obolibrary.org/obo/BFO_0000117'] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 19. TemporalPartOf (BFO_0000139) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000139
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent OccurrentPartOf (BFO_0000132)
+ * @rdfsLabel "temporal part of"
+ * @definition "b temporal_part_of c =Def. b occurrent_part_of c & for some temporal region t, b occupies_temporal_region t & for all occurrents d, t (if d occupies_temporal_region t & t' occurrent_part_of t then (d occurrent_part_of a iff d occurrent_part_of b)). (axiom label in BFO2 Reference: [078-003])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §3.1 Occurrent — temporal_part_of
+ * @domain Occurrent (BFO_0000003)
+ * @range Occurrent (BFO_0000003)
+ * @inverseOf BFO_0000121 (has_temporal_part)
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000132 (occurrent_part_of)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:domain BFO_0000003; rdfs:range BFO_0000003;
+ *            owl:inverseOf BFO_0000121; rdfs:subPropertyOf BFO_0000132;
+ *            [078-003] iff (temporalPartOf a b) (and (occurrentPartOf a b) ...)
+ */
+export interface ITemporalPartOf extends IOccurrentPartOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractTemporalPartOf
+  extends AbstractOccurrentPartOf
+  implements ITemporalPartOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class TemporalPartOf
+  extends AbstractTemporalPartOf
+  implements ITemporalPartOf {
+  override readonly metaClass = 'TemporalPartOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000139' as const;
+  override readonly rdfsLabel = 'temporal part of' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000121' as const;
+  readonly subPropertyOf = ['http://purl.obolibrary.org/obo/BFO_0000132'] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 20. HasTemporalPart (BFO_0000121) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000121
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasOccurrentPart (BFO_0000117)
+ * @rdfsLabel "has temporal part"
+ * @definition "[copied from inverse property 'temporal part of'] b temporal_part_of c =Def. b occurrent_part_of c & for some temporal region t, b occupies_temporal_region t & for all occurrents d, t (if d occupies_temporal_region t & t' occurrent_part_of t then (d occurrent_part_of a iff d occurrent_part_of b)). (axiom label in BFO2 Reference: [078-003])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §3.1 Occurrent — has_temporal_part inverse relation
+ * @domain Occurrent (BFO_0000003)
+ * @range Occurrent (BFO_0000003)
+ * @inverseOf BFO_0000139 (temporal_part_of) — declared on BFO_0000139.
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000117 (has_occurrent_part)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:domain BFO_0000003; rdfs:range BFO_0000003;
+ *            rdfs:subPropertyOf BFO_0000117
+ */
+export interface IHasTemporalPart extends IHasOccurrentPart {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasTemporalPart
+  extends AbstractHasOccurrentPart
+  implements IHasTemporalPart {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasTemporalPart
+  extends AbstractHasTemporalPart
+  implements IHasTemporalPart {
+  override readonly metaClass = 'HasTemporalPart' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000121' as const;
+  override readonly rdfsLabel = 'has temporal part' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  readonly subPropertyOf = ['http://purl.obolibrary.org/obo/BFO_0000117'] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 21. ProperTemporalPartOf (BFO_0000136) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000136
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent ProperOccurrentPartOf (BFO_0000138) and TemporalPartOf (BFO_0000139)
+ *   — multi-parent in the OWL via two rdfs:subPropertyOf assertions; we extend the
+ *   first sibling abstract (BFO_0000138 / AbstractProperOccurrentPartOf) and
+ *   declare BFO_0000139 only in the concrete `subPropertyOf` array.
+ * @rdfsLabel "proper temporal part of"
+ * @definition "b proper_temporal_part_of c =Def. b temporal_part_of c & not (b = c). (axiom label in BFO2 Reference: [116-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §3.1 Occurrent — proper temporal_part_of
+ * @domain Occurrent (BFO_0000003)
+ * @range Occurrent (BFO_0000003)
+ * @inverseOf BFO_0000181 (has_proper_temporal_part)
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000138 (proper_occurrent_part_of), BFO_0000139 (temporal_part_of)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:domain BFO_0000003; rdfs:range BFO_0000003;
+ *            owl:inverseOf BFO_0000181;
+ *            rdfs:subPropertyOf BFO_0000138; rdfs:subPropertyOf BFO_0000139
+ */
+export interface IProperTemporalPartOf extends IProperOccurrentPartOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractProperTemporalPartOf
+  extends AbstractProperOccurrentPartOf
+  implements IProperTemporalPartOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ProperTemporalPartOf
+  extends AbstractProperTemporalPartOf
+  implements IProperTemporalPartOf {
+  override readonly metaClass = 'ProperTemporalPartOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000136' as const;
+  override readonly rdfsLabel = 'proper temporal part of' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000181' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000138',
+    'http://purl.obolibrary.org/obo/BFO_0000139',
+  ] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 22. HasProperTemporalPart (BFO_0000181) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000181
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasProperOccurrentPart (BFO_0000118) and HasTemporalPart (BFO_0000121)
+ *   — multi-parent in the OWL via two rdfs:subPropertyOf assertions; we extend the
+ *   first sibling abstract (BFO_0000118 / AbstractHasProperOccurrentPart) and
+ *   declare BFO_0000121 only in the concrete `subPropertyOf` array.
+ * @rdfsLabel "has proper temporal part"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000181.)
+ *             By inversion of BFO_0000136: b has_proper_temporal_part c at t =Def.
+ *             c proper_temporal_part_of b at t. (axiom label in BFO2 Reference: [116-001])
+ * @bfoReferenceSection §3.1 Occurrent — has_proper_temporal_part inverse relation
+ * @domain Occurrent (BFO_0000003)
+ * @range Occurrent (BFO_0000003)
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000118 (has_proper_occurrent_part), BFO_0000121 (has_temporal_part)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:domain BFO_0000003; rdfs:range BFO_0000003;
+ *            rdfs:subPropertyOf BFO_0000118; rdfs:subPropertyOf BFO_0000121
+ */
+export interface IHasProperTemporalPart extends IHasProperOccurrentPart {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasProperTemporalPart
+  extends AbstractHasProperOccurrentPart
+  implements IHasProperTemporalPart {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasProperTemporalPart
+  extends AbstractHasProperTemporalPart
+  implements IHasProperTemporalPart {
+  override readonly metaClass = 'HasProperTemporalPart' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000181' as const;
+  override readonly rdfsLabel = 'has proper temporal part' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000118',
+    'http://purl.obolibrary.org/obo/BFO_0000121',
+  ] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TEMPORAL-LIFECYCLE FAMILY — BFO_0000108, BFO_0000184, BFO_0000185
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 23. ExistsAt (BFO_0000108) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000108
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "exists at"
+ * @definition "b exists_at t means: b is an entity which exists at some temporal region t. (axiom label in BFO2 Reference: [118-002])"
+ *             (sourced verbatim from obo:IAO_0000600 in spec/src/ontology/owl-group/bfo.owl;
+ *              IAO_0000115 is not declared on BFO_0000108, so the elucidation
+ *              IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §2.1 Continuant / §3.1 Occurrent — temporal lifecycle
+ * @domain Entity (BFO_0000001)
+ * @range TemporalRegion (BFO_0000008)
+ * @inverseOf BFO_0000157 (temporal region of) — declared on BFO_0000108 in the OWL.
+ *            BFO_0000157 itself is implementer #5's territory; we record only
+ *            the IRI here and #5 will declare the property.
+ * @owlAxioms rdfs:domain BFO_0000001; rdfs:range BFO_0000008; owl:inverseOf BFO_0000157
+ */
+export interface IExistsAt extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractExistsAt
+  extends AbstractObjectProperty
+  implements IExistsAt {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ExistsAt
+  extends AbstractExistsAt
+  implements IExistsAt {
+  override readonly metaClass = 'ExistsAt' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000108' as const;
+  override readonly rdfsLabel = 'exists at' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000001' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000008' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000157' as const;
+}
+
+// ─── 24. HistoryOf (BFO_0000184) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000184
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "history of"
+ * @definition "b history_of c if c is a material entity or site and b is a history that is the unique history of c. Axiom: if b history_of c and b history_of d then c=d [XXX-001"
+ *             (sourced verbatim from obo:IAO_0000600 in spec/src/ontology/owl-group/bfo.owl;
+ *              IAO_0000115 reads "[copied from inverse property 'has history']
+ *              b has_history c iff c history_of b [XXX-001".)
+ * @bfoReferenceSection §3.2 Occurrent — History
+ * @domain History (BFO_0000015) — Process root in implementer #2's spine; here
+ *         History per BFO 2020 is BFO_0000182 (subClass of Process / Occurrent),
+ *         but the OWL declares the rdfs:domain of BFO_0000184 as BFO_0000015
+ *         (Process), reflecting the BFO 2014 model where History is registered
+ *         as a Process. We mirror the OWL domain BFO_0000015 verbatim.
+ * @range MaterialEntity (BFO_0000040)
+ * @inverseOf BFO_0000185 (has_history)
+ * @characteristics Functional, InverseFunctional — both declared via
+ *                  `rdf:type owl:FunctionalProperty` and
+ *                  `rdf:type owl:InverseFunctionalProperty` in the OWL release.
+ * @subPropertyOf BFO_0000066 (occurs_in) and BFO_0000070 (subordinate to history root)
+ *                — both declared via two rdfs:subPropertyOf assertions; both
+ *                IRIs are implementer #5's territory and are recorded here only
+ *                as parent IRIs in `subPropertyOf`.
+ * @owlAxioms `rdf:type owl:FunctionalProperty`; `rdf:type owl:InverseFunctionalProperty`;
+ *            rdfs:domain BFO_0000015; rdfs:range BFO_0000040;
+ *            rdfs:subPropertyOf BFO_0000066; rdfs:subPropertyOf BFO_0000070;
+ *            owl:inverseOf BFO_0000185
+ */
+export interface IHistoryOf extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHistoryOf
+  extends AbstractObjectProperty
+  implements IHistoryOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HistoryOf
+  extends AbstractHistoryOf
+  implements IHistoryOf {
+  override readonly metaClass = 'HistoryOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000184' as const;
+  override readonly rdfsLabel = 'history of' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000040' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000185' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000066',
+    'http://purl.obolibrary.org/obo/BFO_0000070',
+  ] as const;
+  readonly characteristics = ['Functional', 'InverseFunctional'] as const;
+}
+
+// ─── 25. HasHistory (BFO_0000185) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000185
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "has history"
+ * @definition "b has_history c iff c history_of b [XXX-001"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl;
+ *              IAO_0000600 reads "[copied from inverse property 'history of']
+ *              b history_of c if c is a material entity or site and b is a
+ *              history that is the unique history of c. Axiom: if b history_of c
+ *              and b history_of d then c=d [XXX-001".)
+ * @bfoReferenceSection §3.2 Occurrent — has_history
+ * @domain MaterialEntity (BFO_0000040)
+ * @range History (BFO_0000015) — declared as Process root in this OWL release;
+ *        see HistoryOf comment for BFO_0000015 vs BFO_0000182 reconciliation.
+ * @inverseOf BFO_0000184 (history_of) — declared on BFO_0000184.
+ * @characteristics Functional, InverseFunctional — both declared via
+ *                  `rdf:type owl:FunctionalProperty` and
+ *                  `rdf:type owl:InverseFunctionalProperty` in the OWL release.
+ * @subPropertyOf BFO_0000067 (contains_process) and BFO_0000166 (subordinate to has_history root)
+ *                — both declared via two rdfs:subPropertyOf assertions; both
+ *                IRIs are implementer #5's territory and are recorded here only
+ *                as parent IRIs in `subPropertyOf`.
+ * @owlAxioms `rdf:type owl:FunctionalProperty`; `rdf:type owl:InverseFunctionalProperty`;
+ *            rdfs:domain BFO_0000040; rdfs:range BFO_0000015;
+ *            rdfs:subPropertyOf BFO_0000067; rdfs:subPropertyOf BFO_0000166
+ */
+export interface IHasHistory extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasHistory
+  extends AbstractObjectProperty
+  implements IHasHistory {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasHistory
+  extends AbstractHasHistory
+  implements IHasHistory {
+  override readonly metaClass = 'HasHistory' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000185' as const;
+  override readonly rdfsLabel = 'has history' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000040' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000184' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000067',
+    'http://purl.obolibrary.org/obo/BFO_0000166',
+  ] as const;
+  readonly characteristics = ['Functional', 'InverseFunctional'] as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// END Implementer #4: BFO Object Properties Part 1
+// (next: Implementer #5 — Object Properties Part 2: inheres_in, bearer_of,
+//  participates_in, has_participant, located_in, occurs_in, concretizes,
+//  realized_in, function_of, disposition_of, quality_of, role_of, …)
+// ═══════════════════════════════════════════════════════════════════════════
