@@ -1,6 +1,6 @@
 {
   "name": "@amlhubs/bfo",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Basic Formal Ontology (BFO 2.0 / ISO/IEC 21838-2:2021) — extensible TypeScript base classes and interfaces projecting the BFO upper-level ontology. Pure BFO; zero downstream dependencies.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
