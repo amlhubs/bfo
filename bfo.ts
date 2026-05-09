@@ -165,15 +165,20 @@ export abstract class AbstractIndependentContinuant
  *            [021-002] (forall (x) (if (and (Entity x) (exists (y t) (and (MaterialEntity y) (continuantPartOfAt x y t)))) (MaterialEntity x))).
  */
 export interface IMaterialEntity extends IIndependentContinuant {
-  readonly metaClass: 'MaterialEntity';
-  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000040';
+  // Widened to `string` so the asserted children — Object (BFO_0000030),
+  // ObjectAggregate (BFO_0000027), FiatObjectPart (BFO_0000024) — declared by
+  // Implementer #2 below can narrow to their own disjoint string literals.
+  // The concrete `MaterialEntity` leaf still narrows the discriminant via
+  // `'MaterialEntity' as const` at instantiation time.
+  readonly metaClass: string;
+  readonly iri: string;
 }
 
 export abstract class AbstractMaterialEntity
   extends AbstractIndependentContinuant
   implements IMaterialEntity {
-  abstract override readonly metaClass: 'MaterialEntity';
-  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000040';
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
 }
 
 export class MaterialEntity extends AbstractMaterialEntity implements IMaterialEntity {
@@ -489,4 +494,562 @@ export class Function_ extends AbstractFunction implements IFunction {
 // ═══════════════════════════════════════════════════════════════════════════
 // END Implementer #1: Continuant spine
 // (next: Implementer #2 — material entity specializations + spatial regions)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BEGIN Implementer #2: Material specializations + Immaterial + Spatial regions
+// (Object • ObjectAggregate • FiatObjectPart • Site •
+//  ContinuantFiatBoundary + 3 dimensional specializations •
+//  SpatialRegion + 4 dimensional specializations)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 13. Object (BFO_0000030) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000030
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent MaterialEntity
+ * @rdfsLabel "object"
+ * @definition "b is an object means: b is a material entity which manifests causal unity of one or other of the types CUn listed above & is of a type (a material universal) instances of which are maximal relative to this criterion of causal unity. (axiom label in BFO2 Reference: [024-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000030, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.5 Material entity — Object (a maximal causally unified material entity)
+ * @disjointWith ObjectAggregate (BFO_0000027), FiatObjectPart (BFO_0000024) — the OWL release
+ *               does not assert pairwise disjointness on Object directly; the BFO 2 Reference
+ *               documents the trichotomy of Object / ObjectAggregate / FiatObjectPart as the
+ *               sub-partition of MaterialEntity, and notes (BFO2 Reference §3.5) that
+ *               problematic penumbra cases do not invalidate the categories.
+ * @subClassOf MaterialEntity (BFO_0000040)
+ * @owlAxioms SubClassOf(BFO_0000040);
+ *            BFO 2 Reference [024-001]: object = maximal causally unified material entity.
+ *            BFO 2020 OWL release does not assert a CLIF axiom (IAO_0000602) for Object —
+ *            the elucidation [024-001] in IAO_0000600 carries the formal definition.
+ *            BFO 2 Reference enumerates causal unity types CU1 (physical covering), CU2
+ *            (internal physical forces), CU3 (engineered assembly).
+ */
+export interface IObject extends IMaterialEntity {
+  readonly metaClass: 'Object';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000030';
+}
+
+export abstract class AbstractObject
+  extends AbstractMaterialEntity
+  implements IObject {
+  abstract override readonly metaClass: 'Object';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000030';
+}
+
+export class Object_ extends AbstractObject implements IObject {
+  override readonly metaClass = 'Object' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000030' as const;
+}
+
+// ─── 14. ObjectAggregate (BFO_0000027) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000027
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent MaterialEntity
+ * @rdfsLabel "object aggregate"
+ * @definition "b is an object aggregate means: b is a material entity consisting exactly of a plurality of objects as member_parts at all times at which b exists. (axiom label in BFO2 Reference: [025-004])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000027, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.5 Material entity — Object aggregate
+ * @disjointWith Object (BFO_0000030), FiatObjectPart (BFO_0000024) — the OWL release
+ *               does not assert pairwise disjointness on ObjectAggregate directly; the
+ *               trichotomy is documented in BFO 2 Reference §3.5 rather than enforced
+ *               at the OWL axiom level.
+ * @subClassOf MaterialEntity (BFO_0000040)
+ * @owlAxioms SubClassOf(BFO_0000040);
+ *            [025-004] (forall (x) (if (ObjectAggregate x) (and (MaterialEntity x) (forall (t) (if (existsAt x t) (exists (y z) (and (Object y) (Object z) (memberPartOfAt y x t) (memberPartOfAt z x t) (not (= y z)))))) (not (exists (w t_1) (and (memberPartOfAt w x t_1) (not (Object w)))))))).
+ *            IAO_0000116 commentary: "An entity a is an object aggregate if and only if
+ *            there is a mutually exhaustive and pairwise disjoint partition of a into objects."
+ *            BFO 2 Reference notes object aggregates may gain and lose parts while
+ *            remaining numerically identical over time (e.g. baseball team, cells in body).
+ */
+export interface IObjectAggregate extends IMaterialEntity {
+  readonly metaClass: 'ObjectAggregate';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000027';
+}
+
+export abstract class AbstractObjectAggregate
+  extends AbstractMaterialEntity
+  implements IObjectAggregate {
+  abstract override readonly metaClass: 'ObjectAggregate';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000027';
+}
+
+export class ObjectAggregate
+  extends AbstractObjectAggregate
+  implements IObjectAggregate {
+  override readonly metaClass = 'ObjectAggregate' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000027' as const;
+}
+
+// ─── 15. FiatObjectPart (BFO_0000024) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000024
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent MaterialEntity
+ * @rdfsLabel "fiat object part"
+ * @definition "b is a fiat object part = Def. b is a material entity which is such that for all times t, if b exists at t then there is some object c such that b proper continuant_part of  c at t and c is demarcated from the remainder of c by a two-dimensional continuant fiat boundary. (axiom label in BFO2 Reference: [027-004])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000024, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.5 Material entity — Fiat object part
+ * @disjointWith Object (BFO_0000030), ObjectAggregate (BFO_0000027) — the OWL release
+ *               does not assert pairwise disjointness on FiatObjectPart directly; the
+ *               trichotomy is documented in BFO 2 Reference §3.5.
+ * @subClassOf MaterialEntity (BFO_0000040)
+ * @owlAxioms SubClassOf(BFO_0000040);
+ *            [027-004] (forall (x) (if (FiatObjectPart x) (and (MaterialEntity x) (forall (t) (if (existsAt x t) (exists (y) (and (Object y) (properContinuantPartOfAt x y t)))))))).
+ *            BFO 2 Reference notes most examples of fiat object parts are associated
+ *            with theoretically drawn divisions (e.g. dorsal/ventral surfaces, lung lobes,
+ *            Western hemisphere of the Earth). Fiat object parts do not depend for their
+ *            existence on the cognitive acts of delineation.
+ */
+export interface IFiatObjectPart extends IMaterialEntity {
+  readonly metaClass: 'FiatObjectPart';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000024';
+}
+
+export abstract class AbstractFiatObjectPart
+  extends AbstractMaterialEntity
+  implements IFiatObjectPart {
+  abstract override readonly metaClass: 'FiatObjectPart';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000024';
+}
+
+export class FiatObjectPart
+  extends AbstractFiatObjectPart
+  implements IFiatObjectPart {
+  override readonly metaClass = 'FiatObjectPart' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000024' as const;
+}
+
+// ─── 16. Site (BFO_0000029) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000029
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent ImmaterialEntity
+ * @rdfsLabel "site"
+ * @definition "b is a site means: b is a three-dimensional immaterial entity that is (partially or wholly) bounded by a material entity or it is a three-dimensional immaterial part thereof. (axiom label in BFO2 Reference: [034-002])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000029, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.6 Immaterial entity — Site
+ * @disjointWith SpatialRegion (BFO_0000006), ContinuantFiatBoundary (BFO_0000140) —
+ *               disjointness is asserted on SpatialRegion (DisjointWith Site) in the
+ *               OWL release; sibling-Site/CFB disjointness is documented in BFO 2
+ *               Reference §3.6.
+ * @subClassOf ImmaterialEntity (BFO_0000141)
+ * @owlAxioms SubClassOf(BFO_0000141);
+ *            [034-002] (forall (x) (if (Site x) (ImmaterialEntity x))).
+ *            BFO 2 Reference exemplars: cockpit of an aircraft, hold of a ship, interior
+ *            of a kangaroo pouch, lumen of the gut, the Grand Canyon, Manhattan Canyon,
+ *            interior of the trunk of a car, interior of a refrigerator, an air traffic
+ *            control region. Sites are bounded by material entities (or fiat boundaries)
+ *            but contain no portion of matter as proper continuant part.
+ */
+export interface ISite extends IImmaterialEntity {
+  readonly metaClass: 'Site';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000029';
+}
+
+export abstract class AbstractSite
+  extends AbstractImmaterialEntity
+  implements ISite {
+  abstract override readonly metaClass: 'Site';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000029';
+}
+
+export class Site extends AbstractSite implements ISite {
+  override readonly metaClass = 'Site' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000029' as const;
+}
+
+// ─── 17. ContinuantFiatBoundary (BFO_0000140) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000140
+ * @metaclass owl:Class
+ * @isAbstract true
+ * @parent ImmaterialEntity
+ * @rdfsLabel "continuant fiat boundary"
+ * @definition "b is a continuant fiat boundary = Def. b is an immaterial entity that is of zero, one or two dimensions and does not include a spatial region as part. (axiom label in BFO2 Reference: [029-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/bfo_classes_only.owl.)
+ * @bfoReferenceSection §3.6 Immaterial entity — Continuant fiat boundary
+ * @disjointWith SpatialRegion (BFO_0000006) — disjointness is asserted on SpatialRegion
+ *               in the OWL release (DisjointWith ContinuantFiatBoundary).
+ * @subClassOf ImmaterialEntity (BFO_0000141)
+ * @owlAxioms SubClassOf(BFO_0000141);
+ *            [029-001] (iff (ContinuantFiatBoundary a) (and (ImmaterialEntity a) (exists (b) (and (or (ZeroDimensionalSpatialRegion b) (OneDimensionalSpatialRegion b) (TwoDimensionalSpatialRegion b)) (forall (t) (locatedInAt a b t)))) (not (exists (c t) (and (SpatialRegion c) (continuantPartOfAt c a t)))))).
+ *            IAO_0000601: "Every continuant fiat boundary is located at some spatial
+ *            region at every time at which it exists." BFO 2 Reference notes the OWL
+ *            release does not declare a closure axiom because mereological sums of
+ *            CFBs of different dimensions are admissible (analogous to spatial and
+ *            temporal regions). Three asserted children:
+ *            ZeroDimensionalContinuantFiatBoundary (BFO_0000147),
+ *            OneDimensionalContinuantFiatBoundary (BFO_0000142),
+ *            TwoDimensionalContinuantFiatBoundary (BFO_0000146).
+ */
+export interface IContinuantFiatBoundary extends IImmaterialEntity {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractContinuantFiatBoundary
+  extends AbstractImmaterialEntity
+  implements IContinuantFiatBoundary {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+// ─── 18. ZeroDimensionalContinuantFiatBoundary (BFO_0000147) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000147
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent ContinuantFiatBoundary
+ * @rdfsLabel "zero-dimensional continuant fiat boundary"
+ * @definition "a zero-dimensional continuant fiat boundary is a fiat point whose location is defined in relation to some material entity. (axiom label in BFO2 Reference: [031-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000147, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.6 Immaterial entity — Zero-dimensional continuant fiat boundary
+ * @disjointWith (none asserted in the OWL release — sibling disjointness with
+ *                OneDimensionalContinuantFiatBoundary (BFO_0000142) is asserted on
+ *                BFO_0000142 (DisjointWith BFO_0000147), and BFO_0000146 has no asserted
+ *                disjointness with BFO_0000147 in the OWL release.)
+ * @subClassOf ContinuantFiatBoundary (BFO_0000140)
+ * @owlAxioms SubClassOf(BFO_0000140);
+ *            [031-001] (iff (ZeroDimensionalContinuantFiatBoundary a) (and (ContinuantFiatBoundary a) (exists (b) (and (ZeroDimensionalSpatialRegion b) (forall (t) (locatedInAt a b t)))))).
+ *            IAO_0000116 commentary: zero-dimensional continuant fiat boundaries are NOT
+ *            spatial points; the quadripoint where the boundaries of Colorado, Utah,
+ *            New Mexico, and Arizona meet is a 0-D CFB (the same fiat point relative to
+ *            the four state boundaries) — it is NOT the spatial point that varies by frame.
+ *            Examples: geographic North Pole, point of origin of a coordinate system.
+ */
+export interface IZeroDimensionalContinuantFiatBoundary
+  extends IContinuantFiatBoundary {
+  readonly metaClass: 'ZeroDimensionalContinuantFiatBoundary';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000147';
+}
+
+export abstract class AbstractZeroDimensionalContinuantFiatBoundary
+  extends AbstractContinuantFiatBoundary
+  implements IZeroDimensionalContinuantFiatBoundary {
+  abstract override readonly metaClass: 'ZeroDimensionalContinuantFiatBoundary';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000147';
+}
+
+export class ZeroDimensionalContinuantFiatBoundary
+  extends AbstractZeroDimensionalContinuantFiatBoundary
+  implements IZeroDimensionalContinuantFiatBoundary {
+  override readonly metaClass = 'ZeroDimensionalContinuantFiatBoundary' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000147' as const;
+}
+
+// ─── 19. OneDimensionalContinuantFiatBoundary (BFO_0000142) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000142
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent ContinuantFiatBoundary
+ * @rdfsLabel "one-dimensional continuant fiat boundary"
+ * @definition "a one-dimensional continuant fiat boundary is a continuous fiat line whose location is defined in relation to some material entity. (axiom label in BFO2 Reference: [032-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000142, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.6 Immaterial entity — One-dimensional continuant fiat boundary
+ * @disjointWith ZeroDimensionalContinuantFiatBoundary (BFO_0000147), TwoDimensionalContinuantFiatBoundary (BFO_0000146)
+ *               — both disjointness axioms are asserted on BFO_0000142 in the OWL release.
+ * @subClassOf ContinuantFiatBoundary (BFO_0000140)
+ * @owlAxioms SubClassOf(BFO_0000140); DisjointWith(BFO_0000146); DisjointWith(BFO_0000147);
+ *            [032-001] (iff (OneDimensionalContinuantFiatBoundary a) (and (ContinuantFiatBoundary a) (exists (b) (and (OneDimensionalSpatialRegion b) (forall (t) (locatedInAt a b t)))))).
+ *            Examples: the Equator, all geopolitical boundaries, all lines of latitude
+ *            and longitude, the median sulcus of a tongue.
+ */
+export interface IOneDimensionalContinuantFiatBoundary
+  extends IContinuantFiatBoundary {
+  readonly metaClass: 'OneDimensionalContinuantFiatBoundary';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000142';
+}
+
+export abstract class AbstractOneDimensionalContinuantFiatBoundary
+  extends AbstractContinuantFiatBoundary
+  implements IOneDimensionalContinuantFiatBoundary {
+  abstract override readonly metaClass: 'OneDimensionalContinuantFiatBoundary';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000142';
+}
+
+export class OneDimensionalContinuantFiatBoundary
+  extends AbstractOneDimensionalContinuantFiatBoundary
+  implements IOneDimensionalContinuantFiatBoundary {
+  override readonly metaClass = 'OneDimensionalContinuantFiatBoundary' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000142' as const;
+}
+
+// ─── 20. TwoDimensionalContinuantFiatBoundary (BFO_0000146) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000146
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent ContinuantFiatBoundary
+ * @rdfsLabel "two-dimensional continuant fiat boundary"
+ * @definition "a two-dimensional continuant fiat boundary (surface) is a self-connected fiat surface whose location is defined in relation to some material entity. (axiom label in BFO2 Reference: [033-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000146, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.6 Immaterial entity — Two-dimensional continuant fiat boundary
+ * @disjointWith OneDimensionalContinuantFiatBoundary (BFO_0000142) — declared on BFO_0000142
+ *               in the OWL release (DisjointWith BFO_0000146); BFO_0000146 itself does
+ *               not assert outgoing sibling disjointness in the OWL release.
+ * @subClassOf ContinuantFiatBoundary (BFO_0000140)
+ * @owlAxioms SubClassOf(BFO_0000140);
+ *            [033-001] (iff (TwoDimensionalContinuantFiatBoundary a) (and (ContinuantFiatBoundary a) (exists (b) (and (TwoDimensionalSpatialRegion b) (forall (t) (locatedInAt a b t)))))).
+ *            BFO 2 Reference: a 2-D CFB is the surface of a material entity (e.g. the
+ *            external surface of an apple, the surface separating two adjacent tissue
+ *            types). BFO 2.0 explicitly treats material-object surfaces as fiat surfaces
+ *            (a departure from BFO 1.1 which treated them as mathematical boundaries).
+ */
+export interface ITwoDimensionalContinuantFiatBoundary
+  extends IContinuantFiatBoundary {
+  readonly metaClass: 'TwoDimensionalContinuantFiatBoundary';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000146';
+}
+
+export abstract class AbstractTwoDimensionalContinuantFiatBoundary
+  extends AbstractContinuantFiatBoundary
+  implements ITwoDimensionalContinuantFiatBoundary {
+  abstract override readonly metaClass: 'TwoDimensionalContinuantFiatBoundary';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000146';
+}
+
+export class TwoDimensionalContinuantFiatBoundary
+  extends AbstractTwoDimensionalContinuantFiatBoundary
+  implements ITwoDimensionalContinuantFiatBoundary {
+  override readonly metaClass = 'TwoDimensionalContinuantFiatBoundary' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000146' as const;
+}
+
+// ─── 21. SpatialRegion (BFO_0000006) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000006
+ * @metaclass owl:Class
+ * @isAbstract true
+ * @parent ImmaterialEntity
+ * @rdfsLabel "spatial region"
+ * @definition "A spatial region is a continuant entity that is a continuant_part_of spaceR as defined relative to some frame R. (axiom label in BFO2 Reference: [035-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000006, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.6 Immaterial entity — Spatial region
+ * @disjointWith Site (BFO_0000029), ContinuantFiatBoundary (BFO_0000140) — both
+ *               disjointness axioms are asserted on BFO_0000006 in the OWL release.
+ * @subClassOf ImmaterialEntity (BFO_0000141)
+ * @owlAxioms SubClassOf(BFO_0000141); DisjointWith(BFO_0000029); DisjointWith(BFO_0000140);
+ *            [035-001] (forall (x) (if (SpatialRegion x) (Continuant x)));
+ *            [036-001] (forall (x y t) (if (and (SpatialRegion x) (continuantPartOfAt y x t)) (SpatialRegion y))) — all continuant parts of spatial regions are spatial regions.
+ *            IAO_0000116 commentary: "Spatial regions do not participate in processes."
+ *            Closure axiom intentionally absent: subclasses {0D, 1D, 2D, 3D} do not exhaust
+ *            all possibilities (e.g. union of a spatial point and a non-overlapping spatial
+ *            line). Asserted children: ZeroDimensionalSpatialRegion (BFO_0000018),
+ *            OneDimensionalSpatialRegion (BFO_0000026),
+ *            TwoDimensionalSpatialRegion (BFO_0000009),
+ *            ThreeDimensionalSpatialRegion (BFO_0000028).
+ */
+export interface ISpatialRegion extends IImmaterialEntity {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractSpatialRegion
+  extends AbstractImmaterialEntity
+  implements ISpatialRegion {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+// ─── 22. ZeroDimensionalSpatialRegion (BFO_0000018) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000018
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent SpatialRegion
+ * @rdfsLabel "zero-dimensional spatial region"
+ * @definition "A zero-dimensional spatial region is a point in space. (axiom label in BFO2 Reference: [037-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000018, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.6 Immaterial entity — Zero-dimensional spatial region
+ * @disjointWith ThreeDimensionalSpatialRegion (BFO_0000028) — asserted on BFO_0000018
+ *               in the OWL release. Sibling disjointness with 1D (BFO_0000026) and 2D
+ *               (BFO_0000009) is not asserted on BFO_0000018 directly (BFO 2020 OWL
+ *               release does not enforce full pairwise disjointness across all four
+ *               dimensional siblings).
+ * @subClassOf SpatialRegion (BFO_0000006)
+ * @owlAxioms SubClassOf(BFO_0000006); DisjointWith(BFO_0000028);
+ *            [037-001] (forall (x) (if (ZeroDimensionalSpatialRegion x) (SpatialRegion x))).
+ *            A 0-D spatial region is a point in space (frame-relative; see also
+ *            ZeroDimensionalContinuantFiatBoundary (BFO_0000147), which is a fiat point
+ *            defined in relation to a material entity rather than to a spatial frame).
+ */
+export interface IZeroDimensionalSpatialRegion extends ISpatialRegion {
+  readonly metaClass: 'ZeroDimensionalSpatialRegion';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000018';
+}
+
+export abstract class AbstractZeroDimensionalSpatialRegion
+  extends AbstractSpatialRegion
+  implements IZeroDimensionalSpatialRegion {
+  abstract override readonly metaClass: 'ZeroDimensionalSpatialRegion';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000018';
+}
+
+export class ZeroDimensionalSpatialRegion
+  extends AbstractZeroDimensionalSpatialRegion
+  implements IZeroDimensionalSpatialRegion {
+  override readonly metaClass = 'ZeroDimensionalSpatialRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000018' as const;
+}
+
+// ─── 23. OneDimensionalSpatialRegion (BFO_0000026) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000026
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent SpatialRegion
+ * @rdfsLabel "one-dimensional spatial region"
+ * @definition "A one-dimensional spatial region is a line or aggregate of lines stretching from one point in space to another. (axiom label in BFO2 Reference: [038-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000026, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.6 Immaterial entity — One-dimensional spatial region
+ * @disjointWith ThreeDimensionalSpatialRegion (BFO_0000028) — asserted on BFO_0000026
+ *               in the OWL release. Sibling disjointness with 0D (BFO_0000018) and 2D
+ *               (BFO_0000009) is not asserted on BFO_0000026 directly.
+ * @subClassOf SpatialRegion (BFO_0000006)
+ * @owlAxioms SubClassOf(BFO_0000006); DisjointWith(BFO_0000028);
+ *            [038-001] (forall (x) (if (OneDimensionalSpatialRegion x) (SpatialRegion x))).
+ *            Example: an edge of a cube-shaped portion of space.
+ */
+export interface IOneDimensionalSpatialRegion extends ISpatialRegion {
+  readonly metaClass: 'OneDimensionalSpatialRegion';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000026';
+}
+
+export abstract class AbstractOneDimensionalSpatialRegion
+  extends AbstractSpatialRegion
+  implements IOneDimensionalSpatialRegion {
+  abstract override readonly metaClass: 'OneDimensionalSpatialRegion';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000026';
+}
+
+export class OneDimensionalSpatialRegion
+  extends AbstractOneDimensionalSpatialRegion
+  implements IOneDimensionalSpatialRegion {
+  override readonly metaClass = 'OneDimensionalSpatialRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000026' as const;
+}
+
+// ─── 24. TwoDimensionalSpatialRegion (BFO_0000009) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000009
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent SpatialRegion
+ * @rdfsLabel "two-dimensional spatial region"
+ * @definition "A two-dimensional spatial region is a spatial region that is of two dimensions. (axiom label in BFO2 Reference: [039-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000009, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.6 Immaterial entity — Two-dimensional spatial region
+ * @disjointWith ThreeDimensionalSpatialRegion (BFO_0000028) — asserted on BFO_0000009
+ *               in the OWL release. Sibling disjointness with 0D (BFO_0000018) and 1D
+ *               (BFO_0000026) is not asserted on BFO_0000009 directly.
+ * @subClassOf SpatialRegion (BFO_0000006)
+ * @owlAxioms SubClassOf(BFO_0000006); DisjointWith(BFO_0000028);
+ *            [039-001] (forall (x) (if (TwoDimensionalSpatialRegion x) (SpatialRegion x))).
+ *            Examples: an infinitely thin plane in space; the surface of a sphere-shaped
+ *            part of space.
+ */
+export interface ITwoDimensionalSpatialRegion extends ISpatialRegion {
+  readonly metaClass: 'TwoDimensionalSpatialRegion';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000009';
+}
+
+export abstract class AbstractTwoDimensionalSpatialRegion
+  extends AbstractSpatialRegion
+  implements ITwoDimensionalSpatialRegion {
+  abstract override readonly metaClass: 'TwoDimensionalSpatialRegion';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000009';
+}
+
+export class TwoDimensionalSpatialRegion
+  extends AbstractTwoDimensionalSpatialRegion
+  implements ITwoDimensionalSpatialRegion {
+  override readonly metaClass = 'TwoDimensionalSpatialRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000009' as const;
+}
+
+// ─── 25. ThreeDimensionalSpatialRegion (BFO_0000028) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000028
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent SpatialRegion
+ * @rdfsLabel "three-dimensional spatial region"
+ * @definition "A three-dimensional spatial region is a spatial region that is of three dimensions. (axiom label in BFO2 Reference: [040-001])"
+ *             (sourced from obo:IAO_0000600 in spec/bfo_classes_only.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000028, so the
+ *              elucidation IAO_0000600 carries the formal definition.)
+ * @bfoReferenceSection §3.6 Immaterial entity — Three-dimensional spatial region
+ * @disjointWith ZeroDimensionalSpatialRegion (BFO_0000018), OneDimensionalSpatialRegion (BFO_0000026), TwoDimensionalSpatialRegion (BFO_0000009)
+ *               — disjointness with each lower-dimensional sibling is asserted on the
+ *               sibling class against BFO_0000028; BFO_0000028 itself does not declare
+ *               outgoing disjointness in the OWL release.
+ * @subClassOf SpatialRegion (BFO_0000006)
+ * @owlAxioms SubClassOf(BFO_0000006);
+ *            [040-001] (forall (x) (if (ThreeDimensionalSpatialRegion x) (SpatialRegion x))).
+ *            Examples: a cube-shaped region of space; a sphere-shaped region of space.
+ */
+export interface IThreeDimensionalSpatialRegion extends ISpatialRegion {
+  readonly metaClass: 'ThreeDimensionalSpatialRegion';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000028';
+}
+
+export abstract class AbstractThreeDimensionalSpatialRegion
+  extends AbstractSpatialRegion
+  implements IThreeDimensionalSpatialRegion {
+  abstract override readonly metaClass: 'ThreeDimensionalSpatialRegion';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000028';
+}
+
+export class ThreeDimensionalSpatialRegion
+  extends AbstractThreeDimensionalSpatialRegion
+  implements IThreeDimensionalSpatialRegion {
+  override readonly metaClass = 'ThreeDimensionalSpatialRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000028' as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// END Implementer #2: Material specializations + Immaterial + Spatial regions
+// (next: Implementer #3 — Occurrent / Process / Temporal regions)
 // ═══════════════════════════════════════════════════════════════════════════
