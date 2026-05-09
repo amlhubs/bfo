@@ -1622,6 +1622,7 @@ export abstract class AbstractObjectProperty implements IObjectProperty {
  *                  [122-001], [121-001]; OWL does not declare these as `rdf:type`
  *                  characteristics on BFO_0000176 itself but its subPropertyOf BFO_0000177
  *                  is declared as `owl:TransitiveProperty`.)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000002; rdfs:range BFO_0000002;
  *            owl:inverseOf BFO_0000178;
  *            [047-002] if b continuant_part_of c at t and b is an independent continuant, then b is located_in c at t;
@@ -1665,6 +1666,8 @@ export class ContinuantPartOf
  * @range Continuant (BFO_0000002)
  * @inverseOf BFO_0000176 (continuant_part_of) — declared on BFO_0000176; the
  *            owl:inverseOf assertion is one-sided in the OWL release.
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000002; rdfs:range BFO_0000002;
  *            [006-001] iff (hasContinuantPartAt a b t) (continuantPartOfAt b a t)
  */
@@ -1711,6 +1714,7 @@ export class HasContinuantPart
  * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`
  *                  on BFO_0000177 in the OWL release.
  * @subPropertyOf BFO_0000176 (continuant_part_of)
+ * @inverseOf (none declared in BFO 2020 OWL release)
  * @owlAxioms `rdf:type owl:TransitiveProperty`; rdfs:subPropertyOf BFO_0000176
  */
 export interface IContinuantPartOfAtAllTimes extends IContinuantPartOf {
@@ -1803,6 +1807,7 @@ export class PartOfContinuantAtAllTimesThatWholeExists
  *        on BFO_0000110 directly in the OWL.
  * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
  * @subPropertyOf BFO_0000178 (has_continuant_part)
+ * @inverseOf (none declared in BFO 2020 OWL release)
  * @owlAxioms `rdf:type owl:TransitiveProperty`;
  *            rdfs:subPropertyOf BFO_0000178;
  *            [006-001] iff (hasContinuantPartAt a b t) (continuantPartOfAt b a t);
@@ -1942,6 +1947,7 @@ export class ProperContinuantPartOf
  * @range Continuant (BFO_0000002)
  * @inverseOf BFO_0000175 (proper_continuant_part_of) — declared on BFO_0000175.
  * @subPropertyOf BFO_0000178 (has_continuant_part)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000002; rdfs:range BFO_0000002;
  *            rdfs:subPropertyOf BFO_0000178
  */
@@ -1986,6 +1992,7 @@ export class HasProperContinuantPart
  * @range Continuant (BFO_0000002) — inherited; not re-asserted on BFO_0000137 directly.
  * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
  * @subPropertyOf BFO_0000175 (proper_continuant_part_of), BFO_0000177 (continuant_part_of_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
  * @owlAxioms `rdf:type owl:TransitiveProperty`;
  *            rdfs:subPropertyOf BFO_0000175; rdfs:subPropertyOf BFO_0000177
  */
@@ -2035,6 +2042,7 @@ export class ProperContinuantPartOfAtAllTimes
  * @range Continuant (BFO_0000002) — inherited; not re-asserted on BFO_0000111 directly.
  * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
  * @subPropertyOf BFO_0000110 (has_continuant_part_at_all_times), BFO_0000174 (has_proper_continuant_part)
+ * @inverseOf (none declared in BFO 2020 OWL release)
  * @owlAxioms `rdf:type owl:TransitiveProperty`;
  *            rdfs:subPropertyOf BFO_0000110; rdfs:subPropertyOf BFO_0000174
  */
@@ -2088,6 +2096,7 @@ export class HasProperContinuantPartAtAllTimes
  * @range Continuant (BFO_0000002)
  * @inverseOf BFO_0000115 (has_member_part_at_some_time)
  * @subPropertyOf BFO_0000175 (proper_continuant_part_of), BFO_0000176 (continuant_part_of)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000002; rdfs:range BFO_0000002;
  *            owl:inverseOf BFO_0000115;
  *            rdfs:subPropertyOf BFO_0000175; rdfs:subPropertyOf BFO_0000176;
@@ -2135,6 +2144,7 @@ export class MemberPartOf
  * @range Continuant (BFO_0000002)
  * @inverseOf BFO_0000129 (member_part_of) — declared on BFO_0000129.
  * @subPropertyOf BFO_0000178 (has_continuant_part)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000002; rdfs:range BFO_0000002;
  *            rdfs:subPropertyOf BFO_0000178
  */
@@ -2179,6 +2189,8 @@ export class HasMemberPart
  * @domain Continuant (BFO_0000002) — inherited.
  * @range Continuant (BFO_0000002) — inherited.
  * @subPropertyOf BFO_0000129 (member_part_of), BFO_0000137 (proper_continuant_part_of_at_all_times), BFO_0000177 (continuant_part_of_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:subPropertyOf BFO_0000129;
  *            rdfs:subPropertyOf BFO_0000137; rdfs:subPropertyOf BFO_0000177;
  *            [104-001] (forall (x y t) (if (memberPartOfAt x y t) (continuantPartOfAt x y t)))
@@ -2235,6 +2247,8 @@ export class MemberPartOfAtAllTimes
  * @subPropertyOf BFO_0000110 (has_continuant_part_at_all_times),
  *                BFO_0000111 (has_proper_continuant_part_at_all_times),
  *                BFO_0000115 (has_member_part_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:subPropertyOf BFO_0000110;
  *            rdfs:subPropertyOf BFO_0000111; rdfs:subPropertyOf BFO_0000115
  */
@@ -2291,6 +2305,7 @@ export class HasMemberPartAtAllTimes
  *                  also Reflexive [113-002], Antisymmetric [123-001], satisfies
  *                  unique product [125-001] and weak supplementation [124-001]
  *                  per IAO_0000601 axioms (not as `rdf:type` characteristics).
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms `rdf:type owl:TransitiveProperty`;
  *            rdfs:domain BFO_0000003; rdfs:range BFO_0000003;
  *            owl:inverseOf BFO_0000117;
@@ -2337,6 +2352,7 @@ export class OccurrentPartOf
  * @range Occurrent (BFO_0000003)
  * @inverseOf BFO_0000132 (occurrent_part_of) — declared on BFO_0000132.
  * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms `rdf:type owl:TransitiveProperty`;
  *            rdfs:domain BFO_0000003; rdfs:range BFO_0000003;
  *            [007-001] iff (hasOccurrentPart a b) (occurrentPartOf b a)
@@ -2617,6 +2633,7 @@ export class ProperTemporalPartOf
  * @range Occurrent (BFO_0000003)
  * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
  * @subPropertyOf BFO_0000118 (has_proper_occurrent_part), BFO_0000121 (has_temporal_part)
+ * @inverseOf (none declared in BFO 2020 OWL release)
  * @owlAxioms `rdf:type owl:TransitiveProperty`;
  *            rdfs:domain BFO_0000003; rdfs:range BFO_0000003;
  *            rdfs:subPropertyOf BFO_0000118; rdfs:subPropertyOf BFO_0000121
@@ -2670,6 +2687,8 @@ export class HasProperTemporalPart
  * @inverseOf BFO_0000157 (temporal region of) — declared on BFO_0000108 in the OWL.
  *            BFO_0000157 itself is implementer #5's territory; we record only
  *            the IRI here and #5 will declare the property.
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000001; rdfs:range BFO_0000008; owl:inverseOf BFO_0000157
  */
 export interface IExistsAt extends IObjectProperty {
@@ -2870,6 +2889,7 @@ export class HasHistory
  *        complement against SpatialRegion (BFO_0000006) is documented here.
  * @characteristics (none declared via rdf:type on this property)
  * @subPropertyOf BFO_0000070 (specifically_depends_on_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000020;
  *            rdfs:range owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006];
  *            rdfs:subPropertyOf BFO_0000070;
@@ -2918,6 +2938,8 @@ export class InheresIn
  *         Surface IRI is BFO_0000004; the complement is documented here.
  * @range SpecificallyDependentContinuant (BFO_0000020)
  * @subPropertyOf BFO_0000125 (has_specific_dependent_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006];
  *            rdfs:range BFO_0000020;
  *            rdfs:subPropertyOf BFO_0000125;
@@ -2971,6 +2993,8 @@ export class BearerOf
  *        `owl:Class > owl:unionOf [BFO_0000015, BFO_0000020]`.
  *        Surface IRI is the joint occurrent / sdc parent Entity (BFO_0000001).
  * @inverseOf BFO_0000169 (specifically_depends_on_at_some_time) — declared on BFO_0000169.
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain unionOf [BFO_0000015, BFO_0000020, intersectionOf [BFO_0000004, complementOf BFO_0000006]];
  *            rdfs:range unionOf [BFO_0000015, BFO_0000020]
  */
@@ -3019,6 +3043,8 @@ export class HasSpecificDependent
  *        owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006]]`.
  *        Surface IRI is BFO_0000001.
  * @inverseOf BFO_0000125 (has_specific_dependent_at_some_time)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms [015-002] If occurrent b s-depends_on some independent continuant c at t, then b s-depends_on c at every time at which b exists;
  *            [136-001] If b s-depends_on something at t, then there is some c, which is an independent continuant and not a spatial region, such that b s-depends_on c at t;
  *            [054-002] if b s-depends_on c at t & c s-depends_on d at t then b s-depends_on d at t (Transitive in the time-indexed reading);
@@ -3064,6 +3090,8 @@ export class SpecificallyDependsOn
  *         Surface IRI is BFO_0000004.
  * @range SpecificallyDependentContinuant (BFO_0000020)
  * @subPropertyOf BFO_0000168 (has_specific_dependent_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain intersectionOf [BFO_0000004, complementOf BFO_0000006];
  *            rdfs:range BFO_0000020;
  *            rdfs:subPropertyOf BFO_0000168;
@@ -3109,6 +3137,8 @@ export class BearerOfAtAllTimes
  * @range (inherited from BFO_0000125 — Process ∪ SpecificallyDependentContinuant)
  *        Surface IRI is BFO_0000001.
  * @subPropertyOf BFO_0000125 (has_specific_dependent_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:subPropertyOf BFO_0000125
  */
 export interface IHasSpecificDependentAtAllTimes extends IHasSpecificDependent {
@@ -3158,6 +3188,9 @@ export class HasSpecificDependentAtAllTimes
  * @bfoReferenceSection §3.1 Occurrent — Process / RealizableEntity realization relation
  * @domain RealizableEntity (BFO_0000017)
  * @range Process (BFO_0000015)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000017; rdfs:range BFO_0000015;
  *            [106-002] if a realizable entity b is realized in a process p, then p stands in the has_participant relation to the bearer of b
  */
@@ -3201,6 +3234,8 @@ export class RealizedIn
  * @domain Process (BFO_0000015)
  * @range RealizableEntity (BFO_0000017)
  * @inverseOf BFO_0000054 (realized_in)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000015; rdfs:range BFO_0000017; owl:inverseOf BFO_0000054;
  *            [059-003] (forall (x y t) (if (realizesAt x y t) (and (Process x) (or (Disposition y) (Role y)) (exists (z) (and (MaterialEntity z) (hasParticipantAt x z t) (bearerOfAt z y t))))))
  */
@@ -3250,6 +3285,9 @@ export class Realizes
  *         `owl:Class > owl:intersectionOf [BFO_0000002, owl:complementOf BFO_0000006]`.
  *         Surface IRI is BFO_0000002.
  * @range Process (BFO_0000015)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain intersectionOf [BFO_0000002, complementOf BFO_0000006];
  *            rdfs:range BFO_0000015
  */
@@ -3294,6 +3332,8 @@ export class ParticipatesIn
  *        `owl:Class > owl:intersectionOf [BFO_0000002, owl:complementOf BFO_0000006]`.
  *        Surface IRI is BFO_0000002.
  * @inverseOf BFO_0000056 (participates_in_at_some_time)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000015;
  *            rdfs:range intersectionOf [BFO_0000002, complementOf BFO_0000006];
  *            owl:inverseOf BFO_0000056;
@@ -3339,6 +3379,8 @@ export class HasParticipant
  * @domain (inherited from BFO_0000056 — Continuant ∩ ¬SpatialRegion)
  * @range (inherited from BFO_0000056 — Process)
  * @subPropertyOf BFO_0000056 (participates_in_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:subPropertyOf BFO_0000056
  */
 export interface IParticipatesInAtAllTimes extends IParticipatesIn {
@@ -3384,6 +3426,8 @@ export class ParticipatesInAtAllTimes
  *        `owl:Class > owl:intersectionOf [BFO_0000002, owl:complementOf BFO_0000006]`.
  *        Surface IRI is BFO_0000002.
  * @subPropertyOf BFO_0000057 (has_participant_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000015;
  *            rdfs:range intersectionOf [BFO_0000002, complementOf BFO_0000006];
  *            rdfs:subPropertyOf BFO_0000057;
@@ -3437,6 +3481,9 @@ export class HasParticipantAtAllTimes
  * @bfoReferenceSection §2.3 Generically Dependent Continuant — concretization relation
  * @domain GenericallyDependentContinuant (BFO_0000031)
  * @range SpecificallyDependentContinuant (BFO_0000020)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000031; rdfs:range BFO_0000020
  */
 export interface IConcretizedBy extends IObjectProperty {
@@ -3480,6 +3527,8 @@ export class ConcretizedBy
  * @domain SpecificallyDependentContinuant (BFO_0000020)
  * @range GenericallyDependentContinuant (BFO_0000031)
  * @inverseOf BFO_0000058 (concretized_by_at_some_time)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000020; rdfs:range BFO_0000031; owl:inverseOf BFO_0000058;
  *            [075-002] (forall (x y t) (if (concretizesAt x y t) (and (SpecificallyDependentContinuant x) (GenericallyDependentContinuant y) (exists (z) (and (IndependentContinuant z) (specificallyDependsOnAt x z t) (genericallyDependsOnAt y z t))))));
  *            [076-001] if b g-depends on c at some time t, then there is some d, such that d concretizes b at t and d s-depends_on c at t
@@ -3521,6 +3570,8 @@ export class Concretizes
  * @domain (inherited from BFO_0000059 — SpecificallyDependentContinuant)
  * @range (inherited from BFO_0000059 — GenericallyDependentContinuant)
  * @subPropertyOf BFO_0000059 (concretizes_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:subPropertyOf BFO_0000059;
  *            [075-002] / [076-001] (see BFO_0000059)
  */
@@ -3562,6 +3613,8 @@ export class ConcretizesAtAllTimes
  * @domain (inherited from BFO_0000058 — GenericallyDependentContinuant)
  * @range (inherited from BFO_0000058 — SpecificallyDependentContinuant)
  * @subPropertyOf BFO_0000058 (concretized_by_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:subPropertyOf BFO_0000058
  */
 export interface IConcretizedByAtAllTimes extends IConcretizedBy {
@@ -3608,6 +3661,8 @@ export class ConcretizedByAtAllTimes
  *        `owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006]`.
  *        Surface IRI is BFO_0000004.
  * @inverseOf BFO_0000101 (has_generic_dependent_at_some_time)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000031;
  *            rdfs:range intersectionOf [BFO_0000004, complementOf BFO_0000006];
  *            owl:inverseOf BFO_0000101;
@@ -3652,6 +3707,9 @@ export class GenericallyDependsOn
  *         `owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006]`.
  *         Surface IRI is BFO_0000004.
  * @range GenericallyDependentContinuant (BFO_0000031)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain intersectionOf [BFO_0000004, complementOf BFO_0000006];
  *            rdfs:range BFO_0000031;
  *            owl:propertyChainAxiom [BFO_0000125, BFO_0000164] (has_specific_dependent ∘ concretizes_at_all_times)
@@ -3698,6 +3756,8 @@ export class HasGenericDependent
  * @domain Function (BFO_0000034)
  * @range (inherited from BFO_0000052 — IndependentContinuant ∩ ¬SpatialRegion)
  * @subPropertyOf BFO_0000052 (inheres_in_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000034;
  *            rdfs:subPropertyOf BFO_0000052;
  *            [067-001] (iff (functionOf a b t) (and (Function a) (inheresInAt a b t)))
@@ -3741,6 +3801,8 @@ export class FunctionOf
  * @domain Quality (BFO_0000019)
  * @range (inherited from BFO_0000052 — IndependentContinuant ∩ ¬SpatialRegion)
  * @subPropertyOf BFO_0000052 (inheres_in_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000019;
  *            rdfs:subPropertyOf BFO_0000052;
  *            [056-002] (iff (qualityOfAt a b t) (and (Quality a) (IndependentContinuant b) (not (SpatialRegion b)) (specificallyDependsOnAt a b t)))
@@ -3784,6 +3846,8 @@ export class QualityOf
  * @domain Role (BFO_0000023)
  * @range (inherited from BFO_0000052 — IndependentContinuant ∩ ¬SpatialRegion)
  * @subPropertyOf BFO_0000052 (inheres_in_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000023;
  *            rdfs:subPropertyOf BFO_0000052;
  *            [065-001] (iff (roleOfAt a b t) (and (Role a) (inheresInAt a b t)))
@@ -3827,6 +3891,8 @@ export class RoleOf
  * @domain Disposition (BFO_0000016)
  * @range (inherited from BFO_0000052 — IndependentContinuant ∩ ¬SpatialRegion)
  * @subPropertyOf BFO_0000052 (inheres_in_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000016;
  *            rdfs:subPropertyOf BFO_0000052;
  *            [066-001] (iff (dispositionOf a b t) (and (Disposition a) (inheresInAt a b t)))
@@ -3870,6 +3936,8 @@ export class DispositionOf
  * @domain (inherited from BFO_0000053 — IndependentContinuant ∩ ¬SpatialRegion)
  * @range Function (BFO_0000034)
  * @subPropertyOf BFO_0000053 (bearer_of_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:range BFO_0000034;
  *            rdfs:subPropertyOf BFO_0000053;
  *            [070-001] (iff (hasFunctionAt a b t) (functionOf b a t))
@@ -3913,6 +3981,8 @@ export class HasFunction
  * @domain (inherited from BFO_0000053 — IndependentContinuant ∩ ¬SpatialRegion)
  * @range Quality (BFO_0000019)
  * @subPropertyOf BFO_0000053 (bearer_of_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:range BFO_0000019; rdfs:subPropertyOf BFO_0000053
  */
 export interface IHasQuality extends IBearerOf {
@@ -3954,6 +4024,8 @@ export class HasQuality
  * @domain (inherited from BFO_0000053 — IndependentContinuant ∩ ¬SpatialRegion)
  * @range Role (BFO_0000023)
  * @subPropertyOf BFO_0000053 (bearer_of_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:range BFO_0000023;
  *            rdfs:subPropertyOf BFO_0000053;
  *            [068-001] (iff (hasRoleAt a b t) (roleOfAt b a t))
@@ -3997,6 +4069,8 @@ export class HasRole
  * @domain (inherited from BFO_0000053 — IndependentContinuant ∩ ¬SpatialRegion)
  * @range Disposition (BFO_0000016)
  * @subPropertyOf BFO_0000053 (bearer_of_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:range BFO_0000016;
  *            rdfs:subPropertyOf BFO_0000053;
  *            [069-001] (iff (hasDispositionAt a b t) (dispositionOf b a t))
@@ -4039,6 +4113,8 @@ export class HasDisposition
  * @domain (inherited from BFO_0000158 — IndependentContinuant ∩ ¬SpatialRegion)
  * @range Quality (BFO_0000019)
  * @subPropertyOf BFO_0000158 (bearer_of_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:range BFO_0000019; rdfs:subPropertyOf BFO_0000158
  */
 export interface IHasQualityAtAllTimes extends IBearerOfAtAllTimes {
@@ -4080,6 +4156,8 @@ export class HasQualityAtAllTimes
  * @domain (inherited from BFO_0000158 — IndependentContinuant ∩ ¬SpatialRegion)
  * @range Function (BFO_0000034)
  * @subPropertyOf BFO_0000158 (bearer_of_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:range BFO_0000034;
  *            rdfs:subPropertyOf BFO_0000158;
  *            [070-001] (iff (hasFunctionAt a b t) (functionOf b a t))
@@ -4123,6 +4201,8 @@ export class HasFunctionAtAllTimes
  * @domain (inherited from BFO_0000158 — IndependentContinuant ∩ ¬SpatialRegion)
  * @range Role (BFO_0000023)
  * @subPropertyOf BFO_0000158 (bearer_of_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:range BFO_0000023;
  *            rdfs:subPropertyOf BFO_0000158;
  *            [068-001] (iff (hasRoleAt a b t) (roleOfAt b a t))
@@ -4166,6 +4246,8 @@ export class HasRoleAtAllTimes
  * @domain (inherited from BFO_0000158 — IndependentContinuant ∩ ¬SpatialRegion)
  * @range Disposition (BFO_0000016)
  * @subPropertyOf BFO_0000158 (bearer_of_at_all_times)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:range BFO_0000016;
  *            rdfs:subPropertyOf BFO_0000158;
  *            [069-001] (iff (hasDispositionAt a b t) (dispositionOf b a t))
@@ -4211,6 +4293,9 @@ export class HasDispositionAtAllTimes
  * @bfoReferenceSection §2.2.1 Realizable Entity — Disposition material basis relation
  * @domain Disposition (BFO_0000016)
  * @range MaterialEntity (BFO_0000040)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000016; rdfs:range BFO_0000040;
  *            [071-002] (forall (x y t) (if (hasMaterialBasisAt x y t) (and (Disposition x) (MaterialEntity y) (exists (z) (and (bearerOfAt z x t) (continuantPartOfAt y z t) (exists (w) (and (Disposition w) (if (hasDisposition z w) (continuantPartOfAt y z t))))))))) // [071-002]
  */
@@ -4248,6 +4333,9 @@ export class HasMaterialBasis
  * @bfoReferenceSection §2.2.1 Realizable Entity — Disposition material basis (inverse)
  * @domain MaterialEntity (BFO_0000040)
  * @range Disposition (BFO_0000016)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000040; rdfs:range BFO_0000016
  */
 export interface IMaterialBasisOf extends IObjectProperty {
@@ -4285,6 +4373,8 @@ export class MaterialBasisOf
  * @domain MaterialEntity (BFO_0000040)
  * @range Disposition (BFO_0000016)
  * @subPropertyOf BFO_0000127 (material_basis_of_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000040; rdfs:range BFO_0000016;
  *            rdfs:subPropertyOf BFO_0000127
  */
@@ -4332,6 +4422,8 @@ export class MaterialBasisOfAtAllTimes
  * @domain IndependentContinuant (BFO_0000004)
  * @range IndependentContinuant (BFO_0000004)
  * @inverseOf BFO_0000124 (has_location_at_some_time)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000004; rdfs:range BFO_0000004; owl:inverseOf BFO_0000124;
  *            [045-001] (iff (locatedInAt a b t) (and (IndependentContinuant a) (IndependentContinuant b) (exists (r_1 r_2) (and (occupiesSpatialRegionAt a r_1 t) (occupiesSpatialRegionAt b r_2 t) (continuantPartOfAt r_1 r_2 t)))));
  *            [046-001] Located_in is transitive (declared on BFO_0000082 only);
@@ -4376,6 +4468,7 @@ export class LocatedIn
  * @range (inherited from BFO_0000171 — IndependentContinuant)
  * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
  * @subPropertyOf BFO_0000171 (located_in_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
  * @owlAxioms `rdf:type owl:TransitiveProperty`;
  *            rdfs:subPropertyOf BFO_0000171;
  *            [045-001] / [046-001] / [048-001] / [049-001] (see BFO_0000171)
@@ -4423,6 +4516,9 @@ export class LocatedInAtAllTimes
  * @bfoReferenceSection §2.1 Continuant — has_location relation (inverse)
  * @domain IndependentContinuant (BFO_0000004)
  * @range IndependentContinuant (BFO_0000004)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000004; rdfs:range BFO_0000004
  */
 export interface IHasLocation extends IObjectProperty {
@@ -4461,6 +4557,7 @@ export class HasLocation
  * @range (inherited from BFO_0000124 — IndependentContinuant)
  * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
  * @subPropertyOf BFO_0000124 (has_location_at_some_time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
  * @owlAxioms `rdf:type owl:TransitiveProperty`;
  *            rdfs:subPropertyOf BFO_0000124
  */
@@ -4506,6 +4603,8 @@ export class HasLocationAtAllTimes
  * @domain IndependentContinuant (BFO_0000004)
  * @range SpatialRegion (BFO_0000006)
  * @inverseOf BFO_0000123 (has_spatial_occupant_at_some_time)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000004; rdfs:range BFO_0000006; owl:inverseOf BFO_0000123;
  *            [041-002] (forall (x r t) (if (occupiesSpatialRegionAt x r t) (and (SpatialRegion r) (IndependentContinuant x))));
  *            [042-002] every region r is occupies_spatial_region r at all times;
@@ -4550,6 +4649,9 @@ export class OccupiesSpatialRegion
  * @bfoReferenceSection §2.1 Continuant — IndependentContinuant / SpatialRegion (inverse)
  * @domain SpatialRegion (BFO_0000006)
  * @range IndependentContinuant (BFO_0000004)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000006; rdfs:range BFO_0000004
  */
 export interface IHasSpatialOccupant extends IObjectProperty {
@@ -4596,6 +4698,8 @@ export class HasSpatialOccupant
  * @domain Occurrent (BFO_0000003)
  * @range SpatiotemporalRegion (BFO_0000011)
  * @inverseOf BFO_0000126 (has_spatiotemporal_occupant)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000003; rdfs:range BFO_0000011; owl:inverseOf BFO_0000126
  */
 export interface IOccupiesSpatiotemporalRegion extends IObjectProperty {
@@ -4636,6 +4740,9 @@ export class OccupiesSpatiotemporalRegion
  * @bfoReferenceSection §3.1 Occurrent — SpatiotemporalRegion / Occurrent (inverse)
  * @domain SpatiotemporalRegion (BFO_0000011)
  * @range Occurrent (BFO_0000003)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000011; rdfs:range BFO_0000003
  */
 export interface IHasSpatiotemporalOccupant extends IObjectProperty {
@@ -4673,6 +4780,8 @@ export class HasSpatiotemporalOccupant
  * @domain SpatiotemporalRegion (BFO_0000011)
  * @range SpatialRegion (BFO_0000006)
  * @inverseOf BFO_0000152 (spatial_projection_of_spatiotemporal_at_some_time)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000011; rdfs:range BFO_0000006; owl:inverseOf BFO_0000152
  */
 export interface IProjectsOntoSpatialRegion extends IObjectProperty {
@@ -4710,6 +4819,9 @@ export class ProjectsOntoSpatialRegion
  * @bfoReferenceSection §3.1 Occurrent — SpatialRegion / SpatiotemporalRegion (inverse projection)
  * @domain SpatialRegion (BFO_0000006)
  * @range SpatiotemporalRegion (BFO_0000011)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000006; rdfs:range BFO_0000011
  */
 export interface ISpatialProjectionOfSpatiotemporal extends IObjectProperty {
@@ -4751,6 +4863,7 @@ export class SpatialProjectionOfSpatiotemporal
  * @range TemporalRegion (BFO_0000008)
  * @inverseOf BFO_0000154 (temporal_projection_of_spatiotemporal)
  * @subPropertyOf BFO_0000108 (exists_at)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000011; rdfs:range BFO_0000008;
  *            rdfs:subPropertyOf BFO_0000108; owl:inverseOf BFO_0000154
  */
@@ -4795,6 +4908,9 @@ export class ProjectsOntoTemporalRegion
  * @bfoReferenceSection §2.1 Continuant / §3.1 Occurrent — temporal lifecycle (inverse)
  * @domain TemporalRegion (BFO_0000008)
  * @range Entity (BFO_0000001)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000008; rdfs:range BFO_0000001
  */
 export interface IDuringWhichExists extends IObjectProperty {
@@ -4832,6 +4948,8 @@ export class DuringWhichExists
  * @domain TemporalRegion (BFO_0000008)
  * @range SpatiotemporalRegion (BFO_0000011)
  * @subPropertyOf BFO_0000157 (during_which_exists)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000008; rdfs:range BFO_0000011;
  *            rdfs:subPropertyOf BFO_0000157
  */
@@ -4879,6 +4997,7 @@ export class TemporalProjectionOfSpatiotemporal
  * @range TemporalRegion (BFO_0000008)
  * @inverseOf BFO_0000156 (has_temporal_occupant)
  * @subPropertyOf BFO_0000108 (exists_at)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000003; rdfs:range BFO_0000008;
  *            rdfs:subPropertyOf BFO_0000108; owl:inverseOf BFO_0000156
  */
@@ -4923,6 +5042,8 @@ export class OccupiesTemporalRegion
  * @domain TemporalRegion (BFO_0000008)
  * @range Occurrent (BFO_0000003)
  * @subPropertyOf BFO_0000157 (during_which_exists)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000008; rdfs:range BFO_0000003;
  *            rdfs:subPropertyOf BFO_0000157
  */
@@ -4967,6 +5088,9 @@ export class HasTemporalOccupant
  * @bfoReferenceSection §3.1 Occurrent — Process / ProcessProfile relation
  * @domain Process (BFO_0000015)
  * @range ProcessProfile (BFO_0000144)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000015; rdfs:range BFO_0000144
  */
 export interface IHasProfile extends IObjectProperty {
@@ -5004,6 +5128,8 @@ export class HasProfile
  * @domain ProcessProfile (BFO_0000144)
  * @range Process (BFO_0000015)
  * @inverseOf BFO_0000119 (has_profile)
+ * @characteristics (none declared in BFO 2020 OWL release)
+ * @subPropertyOf (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain BFO_0000144; rdfs:range BFO_0000015; owl:inverseOf BFO_0000119
  */
 export interface IProcessProfileOf extends IObjectProperty {
@@ -5053,6 +5179,7 @@ export class ProcessProfileOf
  *        `owl:Class > owl:unionOf [BFO_0000029, BFO_0000040]`. Surface IRI is
  *        BFO_0000040 (MaterialEntity); the union is documented here in JSDoc.
  * @inverseOf BFO_0000067 (contains_process)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain unionOf [BFO_0000015, BFO_0000035];
  *            rdfs:range unionOf [BFO_0000029, BFO_0000040];
  *            owl:inverseOf BFO_0000067.
@@ -5110,6 +5237,7 @@ export class OccursIn
  *            BFO_0000066; not declared reciprocally on BFO_0000067 itself.
  *            Recorded here in the IInverseOf field for symmetry with the
  *            history_of / has_history pair which mirrors the same pattern.
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:domain unionOf [BFO_0000029, BFO_0000040];
  *            rdfs:range unionOf [BFO_0000015, BFO_0000035].
  *            BFO 2020 referenced here as the @subPropertyOf parent of BFO_0000185
@@ -5171,6 +5299,8 @@ export class ContainsProcess
  *        (Entity) for the joint root, identical to the convention used on
  *        BFO_0000169 earlier in this file.)
  * @subPropertyOf BFO_0000169 (specifically_depends_on at some time)
+ * @inverseOf (none declared in BFO 2020 OWL release)
+ * @characteristics (none declared in BFO 2020 OWL release)
  * @owlAxioms rdfs:subPropertyOf BFO_0000169;
  *            [015-002] (forall (x y t) (if (and (Occurrent x) (IndependentContinuant y) (specificallyDependsOnAt x y t)) (forall (t_1) (if (existsAt x t_1) (specificallyDependsOnAt x y t_1)))));
  *            [136-001] (forall (x y t) (if (specificallyDependsOnAt x y t) (exists (z) (and (IndependentContinuant z) (not (SpatialRegion z)) (specificallyDependsOnAt x z t)))));
