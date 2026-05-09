@@ -315,20 +315,63 @@ export abstract class AbstractSpecificallyDependentContinuant
  *            if an entity is a quality at any time it exists, it is a quality at every time it exists.
  */
 export interface IQuality extends ISpecificallyDependentContinuant {
-  readonly metaClass: 'Quality';
-  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000019';
+  readonly metaClass: string;
+  readonly iri: string;
 }
 
 export abstract class AbstractQuality
   extends AbstractSpecificallyDependentContinuant
   implements IQuality {
-  abstract override readonly metaClass: 'Quality';
-  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000019';
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
 }
 
 export class Quality extends AbstractQuality implements IQuality {
   override readonly metaClass = 'Quality' as const;
   override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000019' as const;
+}
+
+// ─── PATCH (audit fix): RelationalQuality (BFO_0000145) — owl:Class subClassOf Quality ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000145
+ * @metaclass owl:Class
+ * @isAbstract false
+ * @parent Quality
+ * @rdfsLabel "relational quality"
+ * @definition "b is a relational quality = Def. for some independent continuants c, d and for some time t: b quality_of c at t & b quality_of d at t."
+ *             (axiom label in BFO2 Reference: [057-001]; sourced verbatim from
+ *              obo:IAO_0000115 in spec/bfo_classes_only.owl. obo:IAO_0000600 is
+ *              not declared on BFO_0000145 — the IAO_0000115 definition is the
+ *              normative formal definition.)
+ * @bfoReferenceSection §3.7 Specifically dependent continuant — Quality (Relational quality)
+ * @subClassOf Quality (BFO_0000019)
+ * @owlAxioms SubClassOf(BFO_0000019);
+ *            [057-001] (iff (RelationalQuality a) (exists (b c t) (and (IndependentContinuant b) (IndependentContinuant c) (qualityOfAt a b t) (qualityOfAt a c t)))).
+ *            BFO 2020 examples (via obo:IAO_0000112): "John's role of husband to
+ *            Mary is dependent on Mary's role of wife to John, and both are
+ *            dependent on the object aggregate comprising John and Mary as member
+ *            parts joined together through the relational quality of being
+ *            married"; "a marriage bond, an instance of requited love, an
+ *            obligation between one person and another."
+ */
+export interface IRelationalQuality extends IQuality {
+  readonly metaClass: 'RelationalQuality';
+  readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000145';
+}
+
+export abstract class AbstractRelationalQuality
+  extends AbstractQuality
+  implements IRelationalQuality {
+  abstract override readonly metaClass: 'RelationalQuality';
+  abstract override readonly iri: 'http://purl.obolibrary.org/obo/BFO_0000145';
+}
+
+export class RelationalQuality
+  extends AbstractRelationalQuality
+  implements IRelationalQuality {
+  override readonly metaClass = 'RelationalQuality' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000145' as const;
 }
 
 // ─── 9. RealizableEntity (BFO_0000017) ───
@@ -4984,6 +5027,183 @@ export class ProcessProfileOf
   override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000144' as const;
   override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
   readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000119' as const;
+}
+
+// ─── PATCH (audit fix): occurs_in / contains_process / specifically_depends_on_at_all_times ───
+
+// ─── 76. OccursIn (BFO_0000066) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000066
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "occurs in"
+ * @definition "b occurs_in c =def b is a process and c is a material entity or immaterial entity & there exists a spatiotemporal region r and b occupies_spatiotemporal_region r. & forall(t) if b exists_at t then c exists_at t & there exist spatial regions s and s' where & b spatially_projects_onto s at t & c is occupies_spatial_region s' at t & s is a proper_continuant_part_of s' at t [XXX-001"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl;
+ *              obo:IAO_0000600 is not declared on BFO_0000066 — the IAO_0000115 definition
+ *              is the normative formal definition.)
+ * @bfoReferenceSection §3.1 Occurrent — occurs_in (process containment)
+ * @domain Process ∪ ProcessBoundary — declared as
+ *         `owl:Class > owl:unionOf [BFO_0000015, BFO_0000035]`. Surface IRI is
+ *         BFO_0000015 (Process root); the union is documented here in the
+ *         JSDoc, mirroring the convention used for BFO_0000125 / BFO_0000169 /
+ *         BFO_0000168 unions earlier in this file.
+ * @range Site ∪ MaterialEntity — declared as
+ *        `owl:Class > owl:unionOf [BFO_0000029, BFO_0000040]`. Surface IRI is
+ *        BFO_0000040 (MaterialEntity); the union is documented here in JSDoc.
+ * @inverseOf BFO_0000067 (contains_process)
+ * @owlAxioms rdfs:domain unionOf [BFO_0000015, BFO_0000035];
+ *            rdfs:range unionOf [BFO_0000029, BFO_0000040];
+ *            owl:inverseOf BFO_0000067.
+ *            BFO 2020 referenced here as the @subPropertyOf parent of BFO_0000184
+ *            (history_of) — every history_of fact entails an occurs_in fact between
+ *            the same pair.
+ */
+export interface IOccursIn extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractOccursIn
+  extends AbstractObjectProperty
+  implements IOccursIn {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class OccursIn
+  extends AbstractOccursIn
+  implements IOccursIn {
+  override readonly metaClass = 'OccursIn' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000066' as const;
+  override readonly rdfsLabel = 'occurs in' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000040' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000067' as const;
+}
+
+// ─── 77. ContainsProcess (BFO_0000067) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000067
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "contains process"
+ * @definition "[copied from inverse property 'occurs in'] b occurs_in c =def b is a process and c is a material entity or immaterial entity & there exists a spatiotemporal region r and b occupies_spatiotemporal_region r. & forall(t) if b exists_at t then c exists_at t & there exist spatial regions s and s' where & b spatially_projects_onto s at t & c is occupies_spatial_region s' at t & s is a proper_continuant_part_of s' at t [XXX-001"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl;
+ *              IAO_0000600 is not declared on BFO_0000067 — the IAO_0000115 entry is
+ *              the inverse-projected normative definition. The OWL release
+ *              declares `owl:inverseOf BFO_0000067` on BFO_0000066 (occurs_in),
+ *              so the inverse relationship is documented here as JSDoc only —
+ *              the OWL does not declare a reciprocal `owl:inverseOf BFO_0000066`
+ *              on BFO_0000067 itself.)
+ * @bfoReferenceSection §3.1 Occurrent — contains_process (inverse of occurs_in)
+ * @domain Site ∪ MaterialEntity — declared as
+ *         `owl:Class > owl:unionOf [BFO_0000029, BFO_0000040]`. Surface IRI is
+ *         BFO_0000040 (MaterialEntity); the union is documented here in JSDoc.
+ * @range Process ∪ ProcessBoundary — declared as
+ *        `owl:Class > owl:unionOf [BFO_0000015, BFO_0000035]`. Surface IRI is
+ *        BFO_0000015 (Process root); the union is documented here in JSDoc.
+ * @inverseOf BFO_0000066 (occurs_in) — inferred from the OWL declaration on
+ *            BFO_0000066; not declared reciprocally on BFO_0000067 itself.
+ *            Recorded here in the IInverseOf field for symmetry with the
+ *            history_of / has_history pair which mirrors the same pattern.
+ * @owlAxioms rdfs:domain unionOf [BFO_0000029, BFO_0000040];
+ *            rdfs:range unionOf [BFO_0000015, BFO_0000035].
+ *            BFO 2020 referenced here as the @subPropertyOf parent of BFO_0000185
+ *            (has_history) — every has_history fact entails a contains_process fact
+ *            between the same pair.
+ */
+export interface IContainsProcess extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractContainsProcess
+  extends AbstractObjectProperty
+  implements IContainsProcess {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ContainsProcess
+  extends AbstractContainsProcess
+  implements IContainsProcess {
+  override readonly metaClass = 'ContainsProcess' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000067' as const;
+  override readonly rdfsLabel = 'contains process' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000040' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000066' as const;
+}
+
+// ─── 78. SpecificallyDependsOnAtAllTimes (BFO_0000070) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000070
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent SpecificallyDependsOn (BFO_0000169) — declared via rdfs:subPropertyOf;
+ *         BFO_0000070 is the at-all-times restriction of BFO_0000169
+ *         (specifically_depends_on at some time).
+ * @rdfsLabel "specifically depends on at all times"
+ * @definition "To say that b s-depends_on a at t is to say that b and c do not share common parts & b is of its nature such that it cannot exist unless c exists & b is not a boundary of c and b is not a site of which c is the host [64"
+ *             (sourced verbatim from obo:IAO_0000600 in spec/src/ontology/owl-group/bfo.owl —
+ *              obo:IAO_0000115 is not declared on BFO_0000070, so the elucidation
+ *              IAO_0000600 carries the normative definition. The "at all times"
+ *              semantics are projected by the parent property: the binary reading
+ *              of BFO_0000070 is `forall(t) exists_at(x,t) -> exists_at(y,t) and
+ *              specifically_depends_on(x,y,t)` per Alan Ruttenberg's IAO_0000116
+ *              annotation. Distinct from BFO_0000169, which is the at-some-time
+ *              variant.)
+ * @bfoReferenceSection §2.2 Specifically Dependent Continuant — specifically_depends_on (at-all-times restriction)
+ * @domain (none declared via rdfs:domain in the OWL release — inherited via
+ *         rdfs:subPropertyOf from BFO_0000169 whose declared domain is
+ *         `owl:unionOf [BFO_0000015, BFO_0000020]`; surface IRI mirrored as
+ *         BFO_0000001 (Entity) for the joint root, identical to the convention
+ *         used on BFO_0000169 / BFO_0000125 earlier in this file.)
+ * @range (none declared via rdfs:range in the OWL release — inherited via
+ *        rdfs:subPropertyOf from BFO_0000169 whose declared range is
+ *        `owl:unionOf [BFO_0000015, BFO_0000020, intersectionOf [BFO_0000004,
+ *        complementOf BFO_0000006]]`; surface IRI mirrored as BFO_0000001
+ *        (Entity) for the joint root, identical to the convention used on
+ *        BFO_0000169 earlier in this file.)
+ * @subPropertyOf BFO_0000169 (specifically_depends_on at some time)
+ * @owlAxioms rdfs:subPropertyOf BFO_0000169;
+ *            [015-002] (forall (x y t) (if (and (Occurrent x) (IndependentContinuant y) (specificallyDependsOnAt x y t)) (forall (t_1) (if (existsAt x t_1) (specificallyDependsOnAt x y t_1)))));
+ *            [136-001] (forall (x y t) (if (specificallyDependsOnAt x y t) (exists (z) (and (IndependentContinuant z) (not (SpatialRegion z)) (specificallyDependsOnAt x z t)))));
+ *            [013-002] (forall (x y t) (if (and (Entity x) (or (continuantPartOfAt y x t) (continuantPartOfAt x y t) (occurrentPartOf x y) (occurrentPartOf y x))) (not (specificallyDependsOnAt x y t))));
+ *            [054-002] (forall (x y z t) (if (and (specificallyDependsOnAt x y t) (specificallyDependsOnAt y z t)) (specificallyDependsOnAt x z t)));
+ *            [052-001] (forall (x) (if (exists (y t) (specificallyDependsOnAt x y t)) (not (MaterialEntity x)))).
+ *            BFO 2020 referenced here as the @subPropertyOf parent of BFO_0000184
+ *            (history_of) — every history_of fact entails a specifically_depends_on
+ *            (at_all_times) fact between the same pair.
+ */
+export interface ISpecificallyDependsOnAtAllTimes extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractSpecificallyDependsOnAtAllTimes
+  extends AbstractObjectProperty
+  implements ISpecificallyDependsOnAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class SpecificallyDependsOnAtAllTimes
+  extends AbstractSpecificallyDependsOnAtAllTimes
+  implements ISpecificallyDependsOnAtAllTimes {
+  override readonly metaClass = 'SpecificallyDependsOnAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000070' as const;
+  override readonly rdfsLabel = 'specifically depends on at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000001' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000001' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000169',
+  ] as const;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
