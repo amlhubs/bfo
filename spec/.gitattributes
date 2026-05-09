@@ -1,0 +1,3 @@
+# Vendored spec artifacts MUST be stored byte-identical to upstream bfo-ontology/bfo.
+# Mark every file under spec/ as binary so core.autocrlf does not rewrite line endings.
+* -text
