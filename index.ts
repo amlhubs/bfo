@@ -32,6 +32,25 @@
  * (e.g. `continuantPartOf`) is exposed as the primary leaf, with the dotted
  * Genus.Differentia path provided as an alias when meaningful.
  *
+ * Parent type leaf — `.base` sibling pattern:
+ *
+ *   When an N>=2 Genus.Differentia path itself names a metaclass (i.e. the
+ *   intermediate genus IS a real BFO interface, not just a folder), the
+ *   parent's interface type is exposed at `{path}.base` and the children
+ *   are exposed at their own keys alongside it. Every parent is a plain
+ *   object literal — no `Object.assign(undefined, …)` (that pattern compiles
+ *   under tsc but throws `TypeError: Cannot convert undefined or null to
+ *   object` at runtime under Node). This mirrors
+ *   `.claude/skills/aml/packages/foundational/modelology/src/index.ts`
+ *   lines 397–414.
+ *
+ *   Example:
+ *     bfo.thing.region.spatial.base             -> ISpatialRegion
+ *     bfo.thing.region.spatial.zeroDimensional  -> IZeroDimensionalSpatialRegion
+ *     bfo.thing.boundary.fiat.continuant.base   -> IContinuantFiatBoundary
+ *     bfo.thing.boundary.fiat.continuant.zeroDimensional
+ *                                               -> IZeroDimensionalContinuantFiatBoundary
+ *
  * TypeScript reserved-name workaround:
  *
  *   bfo.ts exports the BFO metaclasses `Function` and `Object` as `Function_`
@@ -546,14 +565,12 @@ export const thing = {
   boundary: {
     process: undefined as unknown as IProcessBoundary,
     fiat: {
-      continuant: Object.assign(
-        undefined as unknown as IContinuantFiatBoundary,
-        {
-          zeroDimensional: undefined as unknown as IZeroDimensionalContinuantFiatBoundary,
-          oneDimensional: undefined as unknown as IOneDimensionalContinuantFiatBoundary,
-          twoDimensional: undefined as unknown as ITwoDimensionalContinuantFiatBoundary,
-        },
-      ),
+      continuant: {
+        base: undefined as unknown as IContinuantFiatBoundary,
+        zeroDimensional: undefined as unknown as IZeroDimensionalContinuantFiatBoundary,
+        oneDimensional: undefined as unknown as IOneDimensionalContinuantFiatBoundary,
+        twoDimensional: undefined as unknown as ITwoDimensionalContinuantFiatBoundary,
+      },
     },
   },
 
@@ -568,16 +585,18 @@ export const thing = {
   // {OneDimensionalTemporalRegion}   -> region.temporal.oneDimensional
   // {SpatiotemporalRegion}           -> region.spatiotemporal
   region: {
-    spatial: Object.assign(undefined as unknown as ISpatialRegion, {
+    spatial: {
+      base: undefined as unknown as ISpatialRegion,
       zeroDimensional: undefined as unknown as IZeroDimensionalSpatialRegion,
       oneDimensional: undefined as unknown as IOneDimensionalSpatialRegion,
       twoDimensional: undefined as unknown as ITwoDimensionalSpatialRegion,
       threeDimensional: undefined as unknown as IThreeDimensionalSpatialRegion,
-    }),
-    temporal: Object.assign(undefined as unknown as ITemporalRegion, {
+    },
+    temporal: {
+      base: undefined as unknown as ITemporalRegion,
       zeroDimensional: undefined as unknown as IZeroDimensionalTemporalRegion,
       oneDimensional: undefined as unknown as IOneDimensionalTemporalRegion,
-    }),
+    },
     spatiotemporal: undefined as unknown as ISpatiotemporalRegion,
   },
 
@@ -670,52 +689,58 @@ export const composition = {
   // rule on multi-token relation names.
   // ─────────────────────────────────────────────────────────────────
   partOf: {
-    continuant: Object.assign(undefined as unknown as IContinuantPartOf, {
-      atAllTimes: Object.assign(
-        undefined as unknown as IContinuantPartOfAtAllTimes,
-        {
-          whileWholeExists:
-            undefined as unknown as IPartOfContinuantAtAllTimesThatWholeExists,
-        },
-      ),
-      proper: Object.assign(undefined as unknown as IProperContinuantPartOf, {
+    continuant: {
+      base: undefined as unknown as IContinuantPartOf,
+      atAllTimes: {
+        base: undefined as unknown as IContinuantPartOfAtAllTimes,
+        whileWholeExists:
+          undefined as unknown as IPartOfContinuantAtAllTimesThatWholeExists,
+      },
+      proper: {
+        base: undefined as unknown as IProperContinuantPartOf,
         atAllTimes:
           undefined as unknown as IProperContinuantPartOfAtAllTimes,
-      }),
-    }),
-    member: Object.assign(undefined as unknown as IMemberPartOf, {
+      },
+    },
+    member: {
+      base: undefined as unknown as IMemberPartOf,
       atAllTimes: undefined as unknown as IMemberPartOfAtAllTimes,
-    }),
-    occurrent: Object.assign(undefined as unknown as IOccurrentPartOf, {
+    },
+    occurrent: {
+      base: undefined as unknown as IOccurrentPartOf,
       proper: undefined as unknown as IProperOccurrentPartOf,
-    }),
-    temporal: Object.assign(undefined as unknown as ITemporalPartOf, {
+    },
+    temporal: {
+      base: undefined as unknown as ITemporalPartOf,
       proper: undefined as unknown as IProperTemporalPartOf,
-    }),
+    },
   },
   has: {
-    continuantPart: Object.assign(undefined as unknown as IHasContinuantPart, {
-      atAllTimes: Object.assign(
-        undefined as unknown as IHasContinuantPartAtAllTimes,
-        {
-          whilePartExists:
-            undefined as unknown as IHasContinuantPartAtAllTimesThatPartExists,
-        },
-      ),
-      proper: Object.assign(undefined as unknown as IHasProperContinuantPart, {
+    continuantPart: {
+      base: undefined as unknown as IHasContinuantPart,
+      atAllTimes: {
+        base: undefined as unknown as IHasContinuantPartAtAllTimes,
+        whilePartExists:
+          undefined as unknown as IHasContinuantPartAtAllTimesThatPartExists,
+      },
+      proper: {
+        base: undefined as unknown as IHasProperContinuantPart,
         atAllTimes:
           undefined as unknown as IHasProperContinuantPartAtAllTimes,
-      }),
-    }),
-    memberPart: Object.assign(undefined as unknown as IHasMemberPart, {
+      },
+    },
+    memberPart: {
+      base: undefined as unknown as IHasMemberPart,
       atAllTimes: undefined as unknown as IHasMemberPartAtAllTimes,
-    }),
-    occurrentPart: Object.assign(undefined as unknown as IHasOccurrentPart, {
+    },
+    occurrentPart: {
+      base: undefined as unknown as IHasOccurrentPart,
       proper: undefined as unknown as IHasProperOccurrentPart,
-    }),
-    temporalPart: Object.assign(undefined as unknown as IHasTemporalPart, {
+    },
+    temporalPart: {
+      base: undefined as unknown as IHasTemporalPart,
       proper: undefined as unknown as IHasProperTemporalPart,
-    }),
+    },
   },
 } as const;
 
