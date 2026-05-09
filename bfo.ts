@@ -2776,3 +2776,2217 @@ export class HasHistory
 //  participates_in, has_participant, located_in, occurs_in, concretizes,
 //  realized_in, function_of, disposition_of, quality_of, role_of, …)
 // ═══════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BEGIN Implementer #5: BFO Object Properties Part 2
+// (inheres_in / bearer_of • concretization • realization •
+//  participation • spatial / spatiotemporal location •
+//  process containment • quality / function / disposition / role binders)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// Discriminant pattern: identical to Implementer #4. Every concrete leaf
+// narrows `metaClass`/`iri`/`rdfsLabel`/`domain`/`range` and the optional
+// `inverseOf` / `subPropertyOf` / `characteristics` discriminants via
+// `as const` initializers. Interfaces and abstract classes keep these
+// members widened to `string` / `ReadonlyArray<string>` so subclasses may
+// supply their own disjoint literals.
+//
+// Domain / range encoding for OWL unions and intersections:
+// Where the OWL declares a domain or range as `owl:Class > owl:intersectionOf`
+// (e.g. "BFO_0000004 ∩ ¬BFO_0000006" — IndependentContinuant minus
+// SpatialRegion) or `owl:Class > owl:unionOf` (e.g. "BFO_0000015 ∪ BFO_0000020"
+// — Process or SpecificallyDependentContinuant), the surface property carries
+// the most specific common super-class IRI and the JSDoc records the full
+// boolean construction. Surface consumers that need the boolean refinement
+// can inspect the JSDoc; surface consumers that need only the rough domain /
+// range get the parent IRI directly.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SPECIFIC-DEPENDENCE FAMILY — BFO_0000052, BFO_0000053, BFO_0000125,
+//   BFO_0000158, BFO_0000168, BFO_0000169
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 26. InheresIn (BFO_0000052) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000052
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent SpecificallyDependsOn (BFO_0000070) via rdfs:subPropertyOf — extended
+ *   structurally below as AbstractObjectProperty (root) since BFO_0000070 is
+ *   itself implementer #5's territory and is registered later in this file.
+ * @rdfsLabel "inheres in at all times"
+ * @definition "b inheres_in c at t =Def. b is a dependent continuant & c is an independent continuant that is not a spatial region & b s-depends_on c at t. (axiom label in BFO2 Reference: [051-002])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2 Specifically Dependent Continuant — inheres_in relation
+ * @domain SpecificallyDependentContinuant (BFO_0000020)
+ * @range IndependentContinuant ∩ ¬SpatialRegion — declared as
+ *        `owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006]`.
+ *        Surface IRI is the parent IndependentContinuant (BFO_0000004); the
+ *        complement against SpatialRegion (BFO_0000006) is documented here.
+ * @characteristics (none declared via rdf:type on this property)
+ * @subPropertyOf BFO_0000070 (specifically_depends_on_at_all_times)
+ * @owlAxioms rdfs:domain BFO_0000020;
+ *            rdfs:range owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006];
+ *            rdfs:subPropertyOf BFO_0000070;
+ *            [051-002] (iff (inheresInAt a b t) (and (DependentContinuant a) (IndependentContinuant b) (not (SpatialRegion b)) (specificallyDependsOnAt a b t)))
+ */
+export interface IInheresIn extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractInheresIn
+  extends AbstractObjectProperty
+  implements IInheresIn {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class InheresIn
+  extends AbstractInheresIn
+  implements IInheresIn {
+  override readonly metaClass = 'InheresIn' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000052' as const;
+  override readonly rdfsLabel = 'inheres in at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000020' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000070',
+  ] as const;
+}
+
+// ─── 27. BearerOf (BFO_0000053) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000053
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasSpecificDependent (BFO_0000125) — extended structurally below as
+ *   AbstractObjectProperty (root) since BFO_0000125 is registered later in
+ *   this implementer-#5 block.
+ * @rdfsLabel "bearer of at some time"
+ * @definition "b bearer_of c at t =Def. c s-depends_on b at t & b is an independent continuant that is not a spatial region. (axiom label in BFO2 Reference: [053-004])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2 Specifically Dependent Continuant — bearer_of relation
+ * @domain IndependentContinuant ∩ ¬SpatialRegion — declared as
+ *         `owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006]`.
+ *         Surface IRI is BFO_0000004; the complement is documented here.
+ * @range SpecificallyDependentContinuant (BFO_0000020)
+ * @subPropertyOf BFO_0000125 (has_specific_dependent_at_some_time)
+ * @owlAxioms rdfs:domain owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006];
+ *            rdfs:range BFO_0000020;
+ *            rdfs:subPropertyOf BFO_0000125;
+ *            [053-004] (iff (bearerOfAt a b t) (and (specificallyDependsOnAt b a t) (IndependentContinuant a) (not (SpatialRegion a)) (existsAt b t)))
+ */
+export interface IBearerOf extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractBearerOf
+  extends AbstractObjectProperty
+  implements IBearerOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class BearerOf
+  extends AbstractBearerOf
+  implements IBearerOf {
+  override readonly metaClass = 'BearerOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000053' as const;
+  override readonly rdfsLabel = 'bearer of at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000020' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000125',
+  ] as const;
+}
+
+// ─── 28. HasSpecificDependent (BFO_0000125) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000125
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "has specific dependent at some time"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000125;
+ *              IAO_0000600 exists only in copied form from BFO_0000169 — "[copied from
+ *              inverse property 'specifically depends on at some time'] To say that b
+ *              s-depends_on a at t is to say that b and c do not share common parts &
+ *              b is of its nature such that it cannot exist unless c exists & b is not
+ *              a boundary of c and b is not a site of which c is the host [64".)
+ * @bfoReferenceSection §2.2 Specifically Dependent Continuant — has_specific_dependent inverse
+ * @domain Process ∪ SpecificallyDependentContinuant ∪ (IndependentContinuant ∩ ¬SpatialRegion)
+ *         — declared as `owl:Class > owl:unionOf [BFO_0000015, BFO_0000020,
+ *         owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006]]`.
+ *         Surface IRI is the BFO root Entity (BFO_0000001).
+ * @range Process ∪ SpecificallyDependentContinuant — declared as
+ *        `owl:Class > owl:unionOf [BFO_0000015, BFO_0000020]`.
+ *        Surface IRI is the joint occurrent / sdc parent Entity (BFO_0000001).
+ * @inverseOf BFO_0000169 (specifically_depends_on_at_some_time) — declared on BFO_0000169.
+ * @owlAxioms rdfs:domain unionOf [BFO_0000015, BFO_0000020, intersectionOf [BFO_0000004, complementOf BFO_0000006]];
+ *            rdfs:range unionOf [BFO_0000015, BFO_0000020]
+ */
+export interface IHasSpecificDependent extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasSpecificDependent
+  extends AbstractObjectProperty
+  implements IHasSpecificDependent {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasSpecificDependent
+  extends AbstractHasSpecificDependent
+  implements IHasSpecificDependent {
+  override readonly metaClass = 'HasSpecificDependent' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000125' as const;
+  override readonly rdfsLabel = 'has specific dependent at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000001' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000001' as const;
+}
+
+// ─── 29. SpecificallyDependsOn (BFO_0000169) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000169
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "specifically depends on at some time"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000169.
+ *              IAO_0000600 reads "To say that b s-depends_on a at t is to say that
+ *              b and c do not share common parts & b is of its nature such that it
+ *              cannot exist unless c exists & b is not a boundary of c and b is not
+ *              a site of which c is the host [64". Multiple IAO_0000601 axioms are
+ *              recorded in @owlAxioms below.)
+ * @bfoReferenceSection §2.2 Specifically Dependent Continuant — specifically_depends_on inverse
+ * @domain Process ∪ SpecificallyDependentContinuant — declared as
+ *         `owl:Class > owl:unionOf [BFO_0000015, BFO_0000020]`. Surface IRI is
+ *         BFO_0000001 (the joint Entity root); the union is documented here.
+ * @range Process ∪ SpecificallyDependentContinuant ∪ (IndependentContinuant ∩ ¬SpatialRegion)
+ *        — declared as `owl:Class > owl:unionOf [BFO_0000015, BFO_0000020,
+ *        owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006]]`.
+ *        Surface IRI is BFO_0000001.
+ * @inverseOf BFO_0000125 (has_specific_dependent_at_some_time)
+ * @owlAxioms [015-002] If occurrent b s-depends_on some independent continuant c at t, then b s-depends_on c at every time at which b exists;
+ *            [136-001] If b s-depends_on something at t, then there is some c, which is an independent continuant and not a spatial region, such that b s-depends_on c at t;
+ *            [054-002] if b s-depends_on c at t & c s-depends_on d at t then b s-depends_on d at t (Transitive in the time-indexed reading);
+ *            [052-001] If b is s-depends_on something at some time, then b is not a material entity;
+ *            [013-002] an entity does not s-depend_on any of its (continuant or occurrent) parts or on anything it is part of
+ */
+export interface ISpecificallyDependsOn extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractSpecificallyDependsOn
+  extends AbstractObjectProperty
+  implements ISpecificallyDependsOn {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class SpecificallyDependsOn
+  extends AbstractSpecificallyDependsOn
+  implements ISpecificallyDependsOn {
+  override readonly metaClass = 'SpecificallyDependsOn' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000169' as const;
+  override readonly rdfsLabel = 'specifically depends on at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000001' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000001' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000125' as const;
+}
+
+// ─── 30. BearerOfAtAllTimes (BFO_0000158) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000158
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasSpecificDependentAtAllTimes (BFO_0000168) — registered later in this block.
+ * @rdfsLabel "bearer of at all times"
+ * @definition "b bearer_of c at t =Def. c s-depends_on b at t & b is an independent continuant that is not a spatial region. (axiom label in BFO2 Reference: [053-004])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2 Specifically Dependent Continuant — bearer_of (all-times reading)
+ * @domain IndependentContinuant ∩ ¬SpatialRegion — declared as
+ *         `owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006]`.
+ *         Surface IRI is BFO_0000004.
+ * @range SpecificallyDependentContinuant (BFO_0000020)
+ * @subPropertyOf BFO_0000168 (has_specific_dependent_at_all_times)
+ * @owlAxioms rdfs:domain intersectionOf [BFO_0000004, complementOf BFO_0000006];
+ *            rdfs:range BFO_0000020;
+ *            rdfs:subPropertyOf BFO_0000168;
+ *            [053-004] (iff (bearerOfAt a b t) (and (specificallyDependsOnAt b a t) (IndependentContinuant a) (not (SpatialRegion a)) (existsAt b t)))
+ */
+export interface IBearerOfAtAllTimes extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractBearerOfAtAllTimes
+  extends AbstractObjectProperty
+  implements IBearerOfAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class BearerOfAtAllTimes
+  extends AbstractBearerOfAtAllTimes
+  implements IBearerOfAtAllTimes {
+  override readonly metaClass = 'BearerOfAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000158' as const;
+  override readonly rdfsLabel = 'bearer of at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000020' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000168',
+  ] as const;
+}
+
+// ─── 31. HasSpecificDependentAtAllTimes (BFO_0000168) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000168
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasSpecificDependent (BFO_0000125)
+ * @rdfsLabel "has specific dependent at all times"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000168.)
+ * @bfoReferenceSection §2.2 Specifically Dependent Continuant — has_specific_dependent (all-times)
+ * @domain (inherited from BFO_0000125 — Process ∪ SpecificallyDependentContinuant ∪ (IndependentContinuant ∩ ¬SpatialRegion))
+ *         Surface IRI is the joint Entity (BFO_0000001).
+ * @range (inherited from BFO_0000125 — Process ∪ SpecificallyDependentContinuant)
+ *        Surface IRI is BFO_0000001.
+ * @subPropertyOf BFO_0000125 (has_specific_dependent_at_some_time)
+ * @owlAxioms rdfs:subPropertyOf BFO_0000125
+ */
+export interface IHasSpecificDependentAtAllTimes extends IHasSpecificDependent {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasSpecificDependentAtAllTimes
+  extends AbstractHasSpecificDependent
+  implements IHasSpecificDependentAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasSpecificDependentAtAllTimes
+  extends AbstractHasSpecificDependentAtAllTimes
+  implements IHasSpecificDependentAtAllTimes {
+  override readonly metaClass = 'HasSpecificDependentAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000168' as const;
+  override readonly rdfsLabel = 'has specific dependent at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000001' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000001' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000125',
+  ] as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// REALIZATION FAMILY — BFO_0000054, BFO_0000055
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 32. RealizedIn (BFO_0000054) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000054
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "realized in"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000054.
+ *              IAO_0000600 reads "[copied from inverse property 'realizes'] to say that
+ *              b realizes c at t is to assert that there is some material entity d &
+ *              b is a process which has participant d at t & c is a disposition or
+ *              role of which d is bearer_of at t & the type instantiated by b is
+ *              correlated with the type instantiated by c. (axiom label in BFO2
+ *              Reference: [059-003])".)
+ * @bfoReferenceSection §3.1 Occurrent — Process / RealizableEntity realization relation
+ * @domain RealizableEntity (BFO_0000017)
+ * @range Process (BFO_0000015)
+ * @owlAxioms rdfs:domain BFO_0000017; rdfs:range BFO_0000015;
+ *            [106-002] if a realizable entity b is realized in a process p, then p stands in the has_participant relation to the bearer of b
+ */
+export interface IRealizedIn extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractRealizedIn
+  extends AbstractObjectProperty
+  implements IRealizedIn {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class RealizedIn
+  extends AbstractRealizedIn
+  implements IRealizedIn {
+  override readonly metaClass = 'RealizedIn' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000054' as const;
+  override readonly rdfsLabel = 'realized in' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000017' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+}
+
+// ─── 33. Realizes (BFO_0000055) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000055
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "realizes"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000055.
+ *              IAO_0000600 reads "to say that b realizes c at t is to assert that
+ *              there is some material entity d & b is a process which has participant
+ *              d at t & c is a disposition or role of which d is bearer_of at t &
+ *              the type instantiated by b is correlated with the type instantiated
+ *              by c. (axiom label in BFO2 Reference: [059-003])".)
+ * @bfoReferenceSection §3.1 Occurrent — Process / RealizableEntity realization relation
+ * @domain Process (BFO_0000015)
+ * @range RealizableEntity (BFO_0000017)
+ * @inverseOf BFO_0000054 (realized_in)
+ * @owlAxioms rdfs:domain BFO_0000015; rdfs:range BFO_0000017; owl:inverseOf BFO_0000054;
+ *            [059-003] (forall (x y t) (if (realizesAt x y t) (and (Process x) (or (Disposition y) (Role y)) (exists (z) (and (MaterialEntity z) (hasParticipantAt x z t) (bearerOfAt z y t))))))
+ */
+export interface IRealizes extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractRealizes
+  extends AbstractObjectProperty
+  implements IRealizes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class Realizes
+  extends AbstractRealizes
+  implements IRealizes {
+  override readonly metaClass = 'Realizes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000055' as const;
+  override readonly rdfsLabel = 'realizes' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000017' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000054' as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PARTICIPATION FAMILY — BFO_0000056, BFO_0000057, BFO_0000166, BFO_0000167
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 34. ParticipatesIn (BFO_0000056) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000056
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "participates in at some time"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000056.
+ *              IAO_0000600 reads "[copied from inverse property 'has participant at
+ *              some time'] has_participant is an instance-level relation between a
+ *              process, a continuant, and a temporal region at which the continuant
+ *              participates in some way in the process. (axiom label in BFO2
+ *              Reference: [086-003])".)
+ * @bfoReferenceSection §3.1 Occurrent — Process participation relation
+ * @domain Continuant ∩ ¬SpatialRegion — declared as
+ *         `owl:Class > owl:intersectionOf [BFO_0000002, owl:complementOf BFO_0000006]`.
+ *         Surface IRI is BFO_0000002.
+ * @range Process (BFO_0000015)
+ * @owlAxioms rdfs:domain intersectionOf [BFO_0000002, complementOf BFO_0000006];
+ *            rdfs:range BFO_0000015
+ */
+export interface IParticipatesIn extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractParticipatesIn
+  extends AbstractObjectProperty
+  implements IParticipatesIn {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ParticipatesIn
+  extends AbstractParticipatesIn
+  implements IParticipatesIn {
+  override readonly metaClass = 'ParticipatesIn' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000056' as const;
+  override readonly rdfsLabel = 'participates in at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+}
+
+// ─── 35. HasParticipant (BFO_0000057) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000057
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "has participant at some time"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000057.
+ *              IAO_0000600 reads "has_participant is an instance-level relation
+ *              between a process, a continuant, and a temporal region at which the
+ *              continuant participates in some way in the process. (axiom label in
+ *              BFO2 Reference: [086-003])".)
+ * @bfoReferenceSection §3.1 Occurrent — Process / Continuant participation relation
+ * @domain Process (BFO_0000015)
+ * @range Continuant ∩ ¬SpatialRegion — declared as
+ *        `owl:Class > owl:intersectionOf [BFO_0000002, owl:complementOf BFO_0000006]`.
+ *        Surface IRI is BFO_0000002.
+ * @inverseOf BFO_0000056 (participates_in_at_some_time)
+ * @owlAxioms rdfs:domain BFO_0000015;
+ *            rdfs:range intersectionOf [BFO_0000002, complementOf BFO_0000006];
+ *            owl:inverseOf BFO_0000056;
+ *            owl:propertyChainAxiom [BFO_0000055, BFO_0000052] (realizes ∘ inheres_in);
+ *            [087-001] if b has_participant c at t then b is an occurrent;
+ *            [088-001] if b has_participant c at t then c is a continuant;
+ *            [089-001] if b has_participant c at t then c exists at t;
+ *            [090-003] / [091-003] dependence-bridge axioms for SDC and GDC participants
+ */
+export interface IHasParticipant extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasParticipant
+  extends AbstractObjectProperty
+  implements IHasParticipant {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasParticipant
+  extends AbstractHasParticipant
+  implements IHasParticipant {
+  override readonly metaClass = 'HasParticipant' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000057' as const;
+  override readonly rdfsLabel = 'has participant at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000056' as const;
+}
+
+// ─── 36. ParticipatesInAtAllTimes (BFO_0000166) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000166
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent ParticipatesIn (BFO_0000056)
+ * @rdfsLabel "participates in at all times"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000166.)
+ * @bfoReferenceSection §3.1 Occurrent — Process participation (all-times)
+ * @domain (inherited from BFO_0000056 — Continuant ∩ ¬SpatialRegion)
+ * @range (inherited from BFO_0000056 — Process)
+ * @subPropertyOf BFO_0000056 (participates_in_at_some_time)
+ * @owlAxioms rdfs:subPropertyOf BFO_0000056
+ */
+export interface IParticipatesInAtAllTimes extends IParticipatesIn {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractParticipatesInAtAllTimes
+  extends AbstractParticipatesIn
+  implements IParticipatesInAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ParticipatesInAtAllTimes
+  extends AbstractParticipatesInAtAllTimes
+  implements IParticipatesInAtAllTimes {
+  override readonly metaClass = 'ParticipatesInAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000166' as const;
+  override readonly rdfsLabel = 'participates in at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000056',
+  ] as const;
+}
+
+// ─── 37. HasParticipantAtAllTimes (BFO_0000167) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000167
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasParticipant (BFO_0000057)
+ * @rdfsLabel "has participant at all times"
+ * @definition (No explicit obo:IAO_0000115 declared on BFO_0000167. IAO_0000600 reads
+ *              "has_participant is an instance-level relation between a process, a
+ *              continuant, and a temporal region at which the continuant participates
+ *              in some way in the process. (axiom label in BFO2 Reference: [086-003])".)
+ * @bfoReferenceSection §3.1 Occurrent — Process / Continuant participation (all-times)
+ * @domain Process (BFO_0000015)
+ * @range Continuant ∩ ¬SpatialRegion — declared as
+ *        `owl:Class > owl:intersectionOf [BFO_0000002, owl:complementOf BFO_0000006]`.
+ *        Surface IRI is BFO_0000002.
+ * @subPropertyOf BFO_0000057 (has_participant_at_some_time)
+ * @owlAxioms rdfs:domain BFO_0000015;
+ *            rdfs:range intersectionOf [BFO_0000002, complementOf BFO_0000006];
+ *            rdfs:subPropertyOf BFO_0000057;
+ *            [087-001] / [088-001] / [089-001] / [090-003] / [091-003] (see BFO_0000057)
+ */
+export interface IHasParticipantAtAllTimes extends IHasParticipant {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasParticipantAtAllTimes
+  extends AbstractHasParticipant
+  implements IHasParticipantAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasParticipantAtAllTimes
+  extends AbstractHasParticipantAtAllTimes
+  implements IHasParticipantAtAllTimes {
+  override readonly metaClass = 'HasParticipantAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000167' as const;
+  override readonly rdfsLabel = 'has participant at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000002' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000057',
+  ] as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONCRETIZATION FAMILY — BFO_0000058, BFO_0000059, BFO_0000164, BFO_0000165
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 38. ConcretizedBy (BFO_0000058) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000058
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "concretized by at some time"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000058.
+ *              IAO_0000600 reads "[copied from inverse property 'concretizes at some
+ *              time'] b concretizes c at t means: b is a specifically dependent
+ *              continuant & c is a generically dependent continuant & for some
+ *              independent continuant that is not a spatial region d, b s-depends_on
+ *              d at t & c g-depends on d at t & if c migrates from bearer d to
+ *              another bearer e than a copy of b will be created in e. (axiom label
+ *              in BFO2 Reference: [075-002])".)
+ * @bfoReferenceSection §2.3 Generically Dependent Continuant — concretization relation
+ * @domain GenericallyDependentContinuant (BFO_0000031)
+ * @range SpecificallyDependentContinuant (BFO_0000020)
+ * @owlAxioms rdfs:domain BFO_0000031; rdfs:range BFO_0000020
+ */
+export interface IConcretizedBy extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractConcretizedBy
+  extends AbstractObjectProperty
+  implements IConcretizedBy {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ConcretizedBy
+  extends AbstractConcretizedBy
+  implements IConcretizedBy {
+  override readonly metaClass = 'ConcretizedBy' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000058' as const;
+  override readonly rdfsLabel = 'concretized by at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000031' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000020' as const;
+}
+
+// ─── 39. Concretizes (BFO_0000059) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000059
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "concretizes at some time"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000059.
+ *              IAO_0000600 reads "b concretizes c at t means: b is a specifically
+ *              dependent continuant & c is a generically dependent continuant &
+ *              for some independent continuant that is not a spatial region d,
+ *              b s-depends_on d at t & c g-depends on d at t & if c migrates from
+ *              bearer d to another bearer e than a copy of b will be created in e.
+ *              (axiom label in BFO2 Reference: [075-002])".)
+ * @bfoReferenceSection §2.3 Generically Dependent Continuant — concretization relation
+ * @domain SpecificallyDependentContinuant (BFO_0000020)
+ * @range GenericallyDependentContinuant (BFO_0000031)
+ * @inverseOf BFO_0000058 (concretized_by_at_some_time)
+ * @owlAxioms rdfs:domain BFO_0000020; rdfs:range BFO_0000031; owl:inverseOf BFO_0000058;
+ *            [075-002] (forall (x y t) (if (concretizesAt x y t) (and (SpecificallyDependentContinuant x) (GenericallyDependentContinuant y) (exists (z) (and (IndependentContinuant z) (specificallyDependsOnAt x z t) (genericallyDependsOnAt y z t))))));
+ *            [076-001] if b g-depends on c at some time t, then there is some d, such that d concretizes b at t and d s-depends_on c at t
+ */
+export interface IConcretizes extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractConcretizes
+  extends AbstractObjectProperty
+  implements IConcretizes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class Concretizes
+  extends AbstractConcretizes
+  implements IConcretizes {
+  override readonly metaClass = 'Concretizes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000059' as const;
+  override readonly rdfsLabel = 'concretizes at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000020' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000031' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000058' as const;
+}
+
+// ─── 40. ConcretizesAtAllTimes (BFO_0000164) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000164
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent Concretizes (BFO_0000059)
+ * @rdfsLabel "concretizes at all times"
+ * @definition (No explicit obo:IAO_0000115 elucidation declared on BFO_0000164.
+ *              IAO_0000600 reads same as BFO_0000059.)
+ * @bfoReferenceSection §2.3 Generically Dependent Continuant — concretization (all-times)
+ * @domain (inherited from BFO_0000059 — SpecificallyDependentContinuant)
+ * @range (inherited from BFO_0000059 — GenericallyDependentContinuant)
+ * @subPropertyOf BFO_0000059 (concretizes_at_some_time)
+ * @owlAxioms rdfs:subPropertyOf BFO_0000059;
+ *            [075-002] / [076-001] (see BFO_0000059)
+ */
+export interface IConcretizesAtAllTimes extends IConcretizes {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractConcretizesAtAllTimes
+  extends AbstractConcretizes
+  implements IConcretizesAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ConcretizesAtAllTimes
+  extends AbstractConcretizesAtAllTimes
+  implements IConcretizesAtAllTimes {
+  override readonly metaClass = 'ConcretizesAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000164' as const;
+  override readonly rdfsLabel = 'concretizes at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000020' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000031' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000059',
+  ] as const;
+}
+
+// ─── 41. ConcretizedByAtAllTimes (BFO_0000165) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000165
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent ConcretizedBy (BFO_0000058)
+ * @rdfsLabel "concretized by at all times"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000165.)
+ * @bfoReferenceSection §2.3 Generically Dependent Continuant — concretization (all-times)
+ * @domain (inherited from BFO_0000058 — GenericallyDependentContinuant)
+ * @range (inherited from BFO_0000058 — SpecificallyDependentContinuant)
+ * @subPropertyOf BFO_0000058 (concretized_by_at_some_time)
+ * @owlAxioms rdfs:subPropertyOf BFO_0000058
+ */
+export interface IConcretizedByAtAllTimes extends IConcretizedBy {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractConcretizedByAtAllTimes
+  extends AbstractConcretizedBy
+  implements IConcretizedByAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ConcretizedByAtAllTimes
+  extends AbstractConcretizedByAtAllTimes
+  implements IConcretizedByAtAllTimes {
+  override readonly metaClass = 'ConcretizedByAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000165' as const;
+  override readonly rdfsLabel = 'concretized by at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000031' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000020' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000058',
+  ] as const;
+}
+
+// ─── 42. GenericallyDependsOn (BFO_0000084) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000084
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "generically depends on at some time"
+ * @definition (No explicit obo:IAO_0000115 declared on BFO_0000084. IAO_0000600 reads
+ *              "b g-depends on c at t1 means: b exists at t1 and c exists at t1 &
+ *              for some type B it holds that (c instantiates B at t1) & necessarily,
+ *              for all t (if b exists at t then some instance_of B exists at t) &
+ *              not (b s-depends_on c at t1). (axiom label in BFO2 Reference: [072-002])".)
+ * @bfoReferenceSection §2.3 Generically Dependent Continuant — generic dependence relation
+ * @domain GenericallyDependentContinuant (BFO_0000031)
+ * @range IndependentContinuant ∩ ¬SpatialRegion — declared as
+ *        `owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006]`.
+ *        Surface IRI is BFO_0000004.
+ * @inverseOf BFO_0000101 (has_generic_dependent_at_some_time)
+ * @owlAxioms rdfs:domain BFO_0000031;
+ *            rdfs:range intersectionOf [BFO_0000004, complementOf BFO_0000006];
+ *            owl:inverseOf BFO_0000101;
+ *            [073-001] if b g-depends_on c at some time t, then b g-depends_on something at all times at which b exists
+ */
+export interface IGenericallyDependsOn extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractGenericallyDependsOn
+  extends AbstractObjectProperty
+  implements IGenericallyDependsOn {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class GenericallyDependsOn
+  extends AbstractGenericallyDependsOn
+  implements IGenericallyDependsOn {
+  override readonly metaClass = 'GenericallyDependsOn' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000084' as const;
+  override readonly rdfsLabel = 'generically depends on at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000031' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000101' as const;
+}
+
+// ─── 43. HasGenericDependent (BFO_0000101) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000101
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "has generic dependent at some time"
+ * @definition (No explicit obo:IAO_0000115 declared on BFO_0000101. IAO_0000600 reads
+ *              "[copied from inverse property 'generically depends on at some time']
+ *              b g-depends on c at t1 means: …" — see BFO_0000084.)
+ * @bfoReferenceSection §2.3 Generically Dependent Continuant — generic dependence (inverse)
+ * @domain IndependentContinuant ∩ ¬SpatialRegion — declared as
+ *         `owl:Class > owl:intersectionOf [BFO_0000004, owl:complementOf BFO_0000006]`.
+ *         Surface IRI is BFO_0000004.
+ * @range GenericallyDependentContinuant (BFO_0000031)
+ * @owlAxioms rdfs:domain intersectionOf [BFO_0000004, complementOf BFO_0000006];
+ *            rdfs:range BFO_0000031;
+ *            owl:propertyChainAxiom [BFO_0000125, BFO_0000164] (has_specific_dependent ∘ concretizes_at_all_times)
+ */
+export interface IHasGenericDependent extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasGenericDependent
+  extends AbstractObjectProperty
+  implements IHasGenericDependent {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasGenericDependent
+  extends AbstractHasGenericDependent
+  implements IHasGenericDependent {
+  override readonly metaClass = 'HasGenericDependent' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000101' as const;
+  override readonly rdfsLabel = 'has generic dependent at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000031' as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// QUALITY / FUNCTION / DISPOSITION / ROLE BINDERS — BFO_0000079, 0000080,
+//   0000081, 0000085, 0000086, 0000087, 0000107, 0000112,
+//   0000159, 0000160, 0000161, 0000162
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 44. FunctionOf (BFO_0000079) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000079
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent InheresIn (BFO_0000052)
+ * @rdfsLabel "function of at all times"
+ * @definition "a function_of b at t =Def. a is a function and a inheres_in b at t. (axiom label in BFO2 Reference: [067-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — Function inheres_in relation
+ * @domain Function (BFO_0000034)
+ * @range (inherited from BFO_0000052 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @subPropertyOf BFO_0000052 (inheres_in_at_all_times)
+ * @owlAxioms rdfs:domain BFO_0000034;
+ *            rdfs:subPropertyOf BFO_0000052;
+ *            [067-001] (iff (functionOf a b t) (and (Function a) (inheresInAt a b t)))
+ */
+export interface IFunctionOf extends IInheresIn {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractFunctionOf
+  extends AbstractInheresIn
+  implements IFunctionOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class FunctionOf
+  extends AbstractFunctionOf
+  implements IFunctionOf {
+  override readonly metaClass = 'FunctionOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000079' as const;
+  override readonly rdfsLabel = 'function of at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000034' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000052',
+  ] as const;
+}
+
+// ─── 45. QualityOf (BFO_0000080) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000080
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent InheresIn (BFO_0000052)
+ * @rdfsLabel "quality of at all times"
+ * @definition "b quality_of c at t = Def. b is a quality & c is an independent continuant that is not a spatial region & b s-depends_on c at t. (axiom label in BFO2 Reference: [056-002])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2.2 Quality — quality_of inheres_in relation
+ * @domain Quality (BFO_0000019)
+ * @range (inherited from BFO_0000052 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @subPropertyOf BFO_0000052 (inheres_in_at_all_times)
+ * @owlAxioms rdfs:domain BFO_0000019;
+ *            rdfs:subPropertyOf BFO_0000052;
+ *            [056-002] (iff (qualityOfAt a b t) (and (Quality a) (IndependentContinuant b) (not (SpatialRegion b)) (specificallyDependsOnAt a b t)))
+ */
+export interface IQualityOf extends IInheresIn {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractQualityOf
+  extends AbstractInheresIn
+  implements IQualityOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class QualityOf
+  extends AbstractQualityOf
+  implements IQualityOf {
+  override readonly metaClass = 'QualityOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000080' as const;
+  override readonly rdfsLabel = 'quality of at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000019' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000052',
+  ] as const;
+}
+
+// ─── 46. RoleOf (BFO_0000081) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000081
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent InheresIn (BFO_0000052)
+ * @rdfsLabel "role of at all times"
+ * @definition "a role_of b at t =Def. a is a role and a inheres_in b at t. (axiom label in BFO2 Reference: [065-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — Role inheres_in relation
+ * @domain Role (BFO_0000023)
+ * @range (inherited from BFO_0000052 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @subPropertyOf BFO_0000052 (inheres_in_at_all_times)
+ * @owlAxioms rdfs:domain BFO_0000023;
+ *            rdfs:subPropertyOf BFO_0000052;
+ *            [065-001] (iff (roleOfAt a b t) (and (Role a) (inheresInAt a b t)))
+ */
+export interface IRoleOf extends IInheresIn {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractRoleOf
+  extends AbstractInheresIn
+  implements IRoleOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class RoleOf
+  extends AbstractRoleOf
+  implements IRoleOf {
+  override readonly metaClass = 'RoleOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000081' as const;
+  override readonly rdfsLabel = 'role of at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000023' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000052',
+  ] as const;
+}
+
+// ─── 47. DispositionOf (BFO_0000107) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000107
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent InheresIn (BFO_0000052)
+ * @rdfsLabel "disposition of at all times"
+ * @definition "a disposition_of b at t =Def. a is a disposition and a inheres_in b at t. (axiom label in BFO2 Reference: [066-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — Disposition inheres_in relation
+ * @domain Disposition (BFO_0000016)
+ * @range (inherited from BFO_0000052 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @subPropertyOf BFO_0000052 (inheres_in_at_all_times)
+ * @owlAxioms rdfs:domain BFO_0000016;
+ *            rdfs:subPropertyOf BFO_0000052;
+ *            [066-001] (iff (dispositionOf a b t) (and (Disposition a) (inheresInAt a b t)))
+ */
+export interface IDispositionOf extends IInheresIn {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractDispositionOf
+  extends AbstractInheresIn
+  implements IDispositionOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class DispositionOf
+  extends AbstractDispositionOf
+  implements IDispositionOf {
+  override readonly metaClass = 'DispositionOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000107' as const;
+  override readonly rdfsLabel = 'disposition of at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000016' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000052',
+  ] as const;
+}
+
+// ─── 48. HasFunction (BFO_0000085) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000085
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent BearerOf (BFO_0000053)
+ * @rdfsLabel "has function at some time"
+ * @definition "a has_function b at t =Def. b function_of a at t. (axiom label in BFO2 Reference: [070-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — has_function relation
+ * @domain (inherited from BFO_0000053 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @range Function (BFO_0000034)
+ * @subPropertyOf BFO_0000053 (bearer_of_at_some_time)
+ * @owlAxioms rdfs:range BFO_0000034;
+ *            rdfs:subPropertyOf BFO_0000053;
+ *            [070-001] (iff (hasFunctionAt a b t) (functionOf b a t))
+ */
+export interface IHasFunction extends IBearerOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasFunction
+  extends AbstractBearerOf
+  implements IHasFunction {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasFunction
+  extends AbstractHasFunction
+  implements IHasFunction {
+  override readonly metaClass = 'HasFunction' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000085' as const;
+  override readonly rdfsLabel = 'has function at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000034' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000053',
+  ] as const;
+}
+
+// ─── 49. HasQuality (BFO_0000086) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000086
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent BearerOf (BFO_0000053)
+ * @rdfsLabel "has quality at some time"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000086;
+ *              by inversion of BFO_0000080: a has_quality b at t =Def. b quality_of a at t.)
+ * @bfoReferenceSection §2.2.2 Quality — has_quality relation
+ * @domain (inherited from BFO_0000053 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @range Quality (BFO_0000019)
+ * @subPropertyOf BFO_0000053 (bearer_of_at_some_time)
+ * @owlAxioms rdfs:range BFO_0000019; rdfs:subPropertyOf BFO_0000053
+ */
+export interface IHasQuality extends IBearerOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasQuality
+  extends AbstractBearerOf
+  implements IHasQuality {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasQuality
+  extends AbstractHasQuality
+  implements IHasQuality {
+  override readonly metaClass = 'HasQuality' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000086' as const;
+  override readonly rdfsLabel = 'has quality at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000019' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000053',
+  ] as const;
+}
+
+// ─── 50. HasRole (BFO_0000087) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000087
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent BearerOf (BFO_0000053)
+ * @rdfsLabel "has role at some time"
+ * @definition "a has_role b at t =Def. b role_of a at t. (axiom label in BFO2 Reference: [068-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — has_role relation
+ * @domain (inherited from BFO_0000053 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @range Role (BFO_0000023)
+ * @subPropertyOf BFO_0000053 (bearer_of_at_some_time)
+ * @owlAxioms rdfs:range BFO_0000023;
+ *            rdfs:subPropertyOf BFO_0000053;
+ *            [068-001] (iff (hasRoleAt a b t) (roleOfAt b a t))
+ */
+export interface IHasRole extends IBearerOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasRole
+  extends AbstractBearerOf
+  implements IHasRole {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasRole
+  extends AbstractHasRole
+  implements IHasRole {
+  override readonly metaClass = 'HasRole' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000087' as const;
+  override readonly rdfsLabel = 'has role at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000023' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000053',
+  ] as const;
+}
+
+// ─── 51. HasDisposition (BFO_0000112) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000112
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent BearerOf (BFO_0000053)
+ * @rdfsLabel "has disposition at some time"
+ * @definition "a has_disposition b at t =Def. b disposition_of a at t. (axiom label in BFO2 Reference: [069-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — has_disposition relation
+ * @domain (inherited from BFO_0000053 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @range Disposition (BFO_0000016)
+ * @subPropertyOf BFO_0000053 (bearer_of_at_some_time)
+ * @owlAxioms rdfs:range BFO_0000016;
+ *            rdfs:subPropertyOf BFO_0000053;
+ *            [069-001] (iff (hasDispositionAt a b t) (dispositionOf b a t))
+ */
+export interface IHasDisposition extends IBearerOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasDisposition
+  extends AbstractBearerOf
+  implements IHasDisposition {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasDisposition
+  extends AbstractHasDisposition
+  implements IHasDisposition {
+  override readonly metaClass = 'HasDisposition' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000112' as const;
+  override readonly rdfsLabel = 'has disposition at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000016' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000053',
+  ] as const;
+}
+
+// ─── 52. HasQualityAtAllTimes (BFO_0000159) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000159
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent BearerOfAtAllTimes (BFO_0000158)
+ * @rdfsLabel "has quality at all times"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000159.)
+ * @bfoReferenceSection §2.2.2 Quality — has_quality (all-times)
+ * @domain (inherited from BFO_0000158 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @range Quality (BFO_0000019)
+ * @subPropertyOf BFO_0000158 (bearer_of_at_all_times)
+ * @owlAxioms rdfs:range BFO_0000019; rdfs:subPropertyOf BFO_0000158
+ */
+export interface IHasQualityAtAllTimes extends IBearerOfAtAllTimes {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasQualityAtAllTimes
+  extends AbstractBearerOfAtAllTimes
+  implements IHasQualityAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasQualityAtAllTimes
+  extends AbstractHasQualityAtAllTimes
+  implements IHasQualityAtAllTimes {
+  override readonly metaClass = 'HasQualityAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000159' as const;
+  override readonly rdfsLabel = 'has quality at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000019' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000158',
+  ] as const;
+}
+
+// ─── 53. HasFunctionAtAllTimes (BFO_0000160) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000160
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent BearerOfAtAllTimes (BFO_0000158)
+ * @rdfsLabel "has function at all times"
+ * @definition "a has_function b at t =Def. b function_of a at t. (axiom label in BFO2 Reference: [070-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — has_function (all-times)
+ * @domain (inherited from BFO_0000158 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @range Function (BFO_0000034)
+ * @subPropertyOf BFO_0000158 (bearer_of_at_all_times)
+ * @owlAxioms rdfs:range BFO_0000034;
+ *            rdfs:subPropertyOf BFO_0000158;
+ *            [070-001] (iff (hasFunctionAt a b t) (functionOf b a t))
+ */
+export interface IHasFunctionAtAllTimes extends IBearerOfAtAllTimes {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasFunctionAtAllTimes
+  extends AbstractBearerOfAtAllTimes
+  implements IHasFunctionAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasFunctionAtAllTimes
+  extends AbstractHasFunctionAtAllTimes
+  implements IHasFunctionAtAllTimes {
+  override readonly metaClass = 'HasFunctionAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000160' as const;
+  override readonly rdfsLabel = 'has function at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000034' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000158',
+  ] as const;
+}
+
+// ─── 54. HasRoleAtAllTimes (BFO_0000161) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000161
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent BearerOfAtAllTimes (BFO_0000158)
+ * @rdfsLabel "has role at all times"
+ * @definition "a has_role b at t =Def. b role_of a at t. (axiom label in BFO2 Reference: [068-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — has_role (all-times)
+ * @domain (inherited from BFO_0000158 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @range Role (BFO_0000023)
+ * @subPropertyOf BFO_0000158 (bearer_of_at_all_times)
+ * @owlAxioms rdfs:range BFO_0000023;
+ *            rdfs:subPropertyOf BFO_0000158;
+ *            [068-001] (iff (hasRoleAt a b t) (roleOfAt b a t))
+ */
+export interface IHasRoleAtAllTimes extends IBearerOfAtAllTimes {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasRoleAtAllTimes
+  extends AbstractBearerOfAtAllTimes
+  implements IHasRoleAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasRoleAtAllTimes
+  extends AbstractHasRoleAtAllTimes
+  implements IHasRoleAtAllTimes {
+  override readonly metaClass = 'HasRoleAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000161' as const;
+  override readonly rdfsLabel = 'has role at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000023' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000158',
+  ] as const;
+}
+
+// ─── 55. HasDispositionAtAllTimes (BFO_0000162) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000162
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent BearerOfAtAllTimes (BFO_0000158)
+ * @rdfsLabel "has disposition at all times"
+ * @definition "a has_disposition b at t =Def. b disposition_of a at t. (axiom label in BFO2 Reference: [069-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — has_disposition (all-times)
+ * @domain (inherited from BFO_0000158 — IndependentContinuant ∩ ¬SpatialRegion)
+ * @range Disposition (BFO_0000016)
+ * @subPropertyOf BFO_0000158 (bearer_of_at_all_times)
+ * @owlAxioms rdfs:range BFO_0000016;
+ *            rdfs:subPropertyOf BFO_0000158;
+ *            [069-001] (iff (hasDispositionAt a b t) (dispositionOf b a t))
+ */
+export interface IHasDispositionAtAllTimes extends IBearerOfAtAllTimes {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasDispositionAtAllTimes
+  extends AbstractBearerOfAtAllTimes
+  implements IHasDispositionAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasDispositionAtAllTimes
+  extends AbstractHasDispositionAtAllTimes
+  implements IHasDispositionAtAllTimes {
+  override readonly metaClass = 'HasDispositionAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000162' as const;
+  override readonly rdfsLabel = 'has disposition at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000016' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000158',
+  ] as const;
+}
+
+// ─── 56. HasMaterialBasis (BFO_0000113) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000113
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "has material basis at all times"
+ * @definition (No explicit obo:IAO_0000115 declared on BFO_0000113. IAO_0000600 reads
+ *              "b has_material_basis c at t means: b is a disposition & c is a
+ *              material entity & there is some d bearer_of b at t & c continuant_part_of
+ *              d at t & d has_disposition b at t because c continuant_part_of d at t.
+ *              (axiom label in BFO2 Reference: [071-002])".)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — Disposition material basis relation
+ * @domain Disposition (BFO_0000016)
+ * @range MaterialEntity (BFO_0000040)
+ * @owlAxioms rdfs:domain BFO_0000016; rdfs:range BFO_0000040;
+ *            [071-002] (forall (x y t) (if (hasMaterialBasisAt x y t) (and (Disposition x) (MaterialEntity y) (exists (z) (and (bearerOfAt z x t) (continuantPartOfAt y z t) (exists (w) (and (Disposition w) (if (hasDisposition z w) (continuantPartOfAt y z t))))))))) // [071-002]
+ */
+export interface IHasMaterialBasis extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasMaterialBasis
+  extends AbstractObjectProperty
+  implements IHasMaterialBasis {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasMaterialBasis
+  extends AbstractHasMaterialBasis
+  implements IHasMaterialBasis {
+  override readonly metaClass = 'HasMaterialBasis' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000113' as const;
+  override readonly rdfsLabel = 'has material basis at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000016' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000040' as const;
+}
+
+// ─── 57. MaterialBasisOf (BFO_0000127) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000127
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "material basis of at some time"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000127.)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — Disposition material basis (inverse)
+ * @domain MaterialEntity (BFO_0000040)
+ * @range Disposition (BFO_0000016)
+ * @owlAxioms rdfs:domain BFO_0000040; rdfs:range BFO_0000016
+ */
+export interface IMaterialBasisOf extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractMaterialBasisOf
+  extends AbstractObjectProperty
+  implements IMaterialBasisOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class MaterialBasisOf
+  extends AbstractMaterialBasisOf
+  implements IMaterialBasisOf {
+  override readonly metaClass = 'MaterialBasisOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000127' as const;
+  override readonly rdfsLabel = 'material basis of at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000040' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000016' as const;
+}
+
+// ─── 58. MaterialBasisOfAtAllTimes (BFO_0000163) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000163
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent MaterialBasisOf (BFO_0000127)
+ * @rdfsLabel "material basis of at all times"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000163.)
+ * @bfoReferenceSection §2.2.1 Realizable Entity — Disposition material basis (all-times)
+ * @domain MaterialEntity (BFO_0000040)
+ * @range Disposition (BFO_0000016)
+ * @subPropertyOf BFO_0000127 (material_basis_of_at_some_time)
+ * @owlAxioms rdfs:domain BFO_0000040; rdfs:range BFO_0000016;
+ *            rdfs:subPropertyOf BFO_0000127
+ */
+export interface IMaterialBasisOfAtAllTimes extends IMaterialBasisOf {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractMaterialBasisOfAtAllTimes
+  extends AbstractMaterialBasisOf
+  implements IMaterialBasisOfAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class MaterialBasisOfAtAllTimes
+  extends AbstractMaterialBasisOfAtAllTimes
+  implements IMaterialBasisOfAtAllTimes {
+  override readonly metaClass = 'MaterialBasisOfAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000163' as const;
+  override readonly rdfsLabel = 'material basis of at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000040' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000016' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000127',
+  ] as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SPATIAL LOCATION FAMILY — BFO_0000082, BFO_0000083, BFO_0000123,
+//   BFO_0000124, BFO_0000170, BFO_0000171
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 59. LocatedIn (BFO_0000171) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000171
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "located in at some time"
+ * @definition "b located_in c at t = Def. b and c are independent continuants, and the region at which b is located at t is a (proper or improper) continuant_part_of the region at which c is located at t. (axiom label in BFO2 Reference: [045-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.1 Continuant — IndependentContinuant location relation
+ * @domain IndependentContinuant (BFO_0000004)
+ * @range IndependentContinuant (BFO_0000004)
+ * @inverseOf BFO_0000124 (has_location_at_some_time)
+ * @owlAxioms rdfs:domain BFO_0000004; rdfs:range BFO_0000004; owl:inverseOf BFO_0000124;
+ *            [045-001] (iff (locatedInAt a b t) (and (IndependentContinuant a) (IndependentContinuant b) (exists (r_1 r_2) (and (occupiesSpatialRegionAt a r_1 t) (occupiesSpatialRegionAt b r_2 t) (continuantPartOfAt r_1 r_2 t)))));
+ *            [046-001] Located_in is transitive (declared on BFO_0000082 only);
+ *            [048-001] continuant_part_of ∘ located_in ⊑ located_in;
+ *            [049-001] located_in ∘ continuant_part_of ⊑ located_in
+ */
+export interface ILocatedIn extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractLocatedIn
+  extends AbstractObjectProperty
+  implements ILocatedIn {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class LocatedIn
+  extends AbstractLocatedIn
+  implements ILocatedIn {
+  override readonly metaClass = 'LocatedIn' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000171' as const;
+  override readonly rdfsLabel = 'located in at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000124' as const;
+}
+
+// ─── 60. LocatedInAtAllTimes (BFO_0000082) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000082
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent LocatedIn (BFO_0000171)
+ * @rdfsLabel "located in at all times"
+ * @definition "b located_in c at t = Def. b and c are independent continuants, and the region at which b is located at t is a (proper or improper) continuant_part_of the region at which c is located at t. (axiom label in BFO2 Reference: [045-001])"
+ *             (sourced verbatim from obo:IAO_0000115 in spec/src/ontology/owl-group/bfo.owl)
+ * @bfoReferenceSection §2.1 Continuant — location relation (all-times reading)
+ * @domain (inherited from BFO_0000171 — IndependentContinuant)
+ * @range (inherited from BFO_0000171 — IndependentContinuant)
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000171 (located_in_at_some_time)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:subPropertyOf BFO_0000171;
+ *            [045-001] / [046-001] / [048-001] / [049-001] (see BFO_0000171)
+ */
+export interface ILocatedInAtAllTimes extends ILocatedIn {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractLocatedInAtAllTimes
+  extends AbstractLocatedIn
+  implements ILocatedInAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class LocatedInAtAllTimes
+  extends AbstractLocatedInAtAllTimes
+  implements ILocatedInAtAllTimes {
+  override readonly metaClass = 'LocatedInAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000082' as const;
+  override readonly rdfsLabel = 'located in at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000171',
+  ] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 61. HasLocation (BFO_0000124) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000124
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "has location at some time"
+ * @definition (No explicit obo:IAO_0000115 declared on BFO_0000124; IAO_0000600 reads
+ *              "[copied from inverse property 'located in at some time'] b located_in
+ *              c at t = Def. b and c are independent continuants, and the region at
+ *              which b is located at t is a (proper or improper) continuant_part_of
+ *              the region at which c is located at t. (axiom label in BFO2 Reference:
+ *              [045-001])".)
+ * @bfoReferenceSection §2.1 Continuant — has_location relation (inverse)
+ * @domain IndependentContinuant (BFO_0000004)
+ * @range IndependentContinuant (BFO_0000004)
+ * @owlAxioms rdfs:domain BFO_0000004; rdfs:range BFO_0000004
+ */
+export interface IHasLocation extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasLocation
+  extends AbstractObjectProperty
+  implements IHasLocation {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasLocation
+  extends AbstractHasLocation
+  implements IHasLocation {
+  override readonly metaClass = 'HasLocation' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000124' as const;
+  override readonly rdfsLabel = 'has location at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+}
+
+// ─── 62. HasLocationAtAllTimes (BFO_0000170) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000170
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent HasLocation (BFO_0000124)
+ * @rdfsLabel "has location at all times"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000170.)
+ * @bfoReferenceSection §2.1 Continuant — has_location (all-times)
+ * @domain (inherited from BFO_0000124 — IndependentContinuant)
+ * @range (inherited from BFO_0000124 — IndependentContinuant)
+ * @characteristics Transitive — declared via `rdf:type owl:TransitiveProperty`.
+ * @subPropertyOf BFO_0000124 (has_location_at_some_time)
+ * @owlAxioms `rdf:type owl:TransitiveProperty`;
+ *            rdfs:subPropertyOf BFO_0000124
+ */
+export interface IHasLocationAtAllTimes extends IHasLocation {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasLocationAtAllTimes
+  extends AbstractHasLocation
+  implements IHasLocationAtAllTimes {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasLocationAtAllTimes
+  extends AbstractHasLocationAtAllTimes
+  implements IHasLocationAtAllTimes {
+  override readonly metaClass = 'HasLocationAtAllTimes' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000170' as const;
+  override readonly rdfsLabel = 'has location at all times' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000124',
+  ] as const;
+  readonly characteristics = ['Transitive'] as const;
+}
+
+// ─── 63. OccupiesSpatialRegion (BFO_0000083) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000083
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "occupies spatial region at some time"
+ * @definition (No explicit obo:IAO_0000115 declared on BFO_0000083. IAO_0000600 reads
+ *              "b occupies_spatial_region r at t means that r is a spatial region in
+ *              which independent continuant b is exactly located. (axiom label in
+ *              BFO2 Reference: [041-002])".)
+ * @bfoReferenceSection §2.1 Continuant — IndependentContinuant / SpatialRegion occupation relation
+ * @domain IndependentContinuant (BFO_0000004)
+ * @range SpatialRegion (BFO_0000006)
+ * @inverseOf BFO_0000123 (has_spatial_occupant_at_some_time)
+ * @owlAxioms rdfs:domain BFO_0000004; rdfs:range BFO_0000006; owl:inverseOf BFO_0000123;
+ *            [041-002] (forall (x r t) (if (occupiesSpatialRegionAt x r t) (and (SpatialRegion r) (IndependentContinuant x))));
+ *            [042-002] every region r is occupies_spatial_region r at all times;
+ *            [043-001] occupies_spatial_region distributes over continuant_part_of
+ */
+export interface IOccupiesSpatialRegion extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractOccupiesSpatialRegion
+  extends AbstractObjectProperty
+  implements IOccupiesSpatialRegion {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class OccupiesSpatialRegion
+  extends AbstractOccupiesSpatialRegion
+  implements IOccupiesSpatialRegion {
+  override readonly metaClass = 'OccupiesSpatialRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000083' as const;
+  override readonly rdfsLabel = 'occupies spatial region at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000006' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000123' as const;
+}
+
+// ─── 64. HasSpatialOccupant (BFO_0000123) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000123
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "has spatial occupant at some time"
+ * @definition (No explicit obo:IAO_0000115 declared on BFO_0000123; IAO_0000600 reads
+ *              "[copied from inverse property 'occupies spatial region at some time']
+ *              b occupies_spatial_region r at t means that r is a spatial region in
+ *              which independent continuant b is exactly located. (axiom label in
+ *              BFO2 Reference: [041-002])".)
+ * @bfoReferenceSection §2.1 Continuant — IndependentContinuant / SpatialRegion (inverse)
+ * @domain SpatialRegion (BFO_0000006)
+ * @range IndependentContinuant (BFO_0000004)
+ * @owlAxioms rdfs:domain BFO_0000006; rdfs:range BFO_0000004
+ */
+export interface IHasSpatialOccupant extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasSpatialOccupant
+  extends AbstractObjectProperty
+  implements IHasSpatialOccupant {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasSpatialOccupant
+  extends AbstractHasSpatialOccupant
+  implements IHasSpatialOccupant {
+  override readonly metaClass = 'HasSpatialOccupant' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000123' as const;
+  override readonly rdfsLabel = 'has spatial occupant at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000006' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000004' as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SPATIOTEMPORAL FAMILY — BFO_0000126, BFO_0000130, BFO_0000151,
+//   BFO_0000152, BFO_0000153, BFO_0000154, BFO_0000155, BFO_0000156,
+//   BFO_0000157
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 65. OccupiesSpatiotemporalRegion (BFO_0000130) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000130
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "occupies spatiotemporal region"
+ * @definition (No explicit obo:IAO_0000115 declared on BFO_0000130. IAO_0000600 reads
+ *              "p occupies_spatiotemporal_region s. This is a primitive relation
+ *              between an occurrent p and the spatiotemporal region s which is its
+ *              spatiotemporal extent. (axiom label in BFO2 Reference: [082-003])".)
+ * @bfoReferenceSection §3.1 Occurrent — Occurrent / SpatiotemporalRegion occupation
+ * @domain Occurrent (BFO_0000003)
+ * @range SpatiotemporalRegion (BFO_0000011)
+ * @inverseOf BFO_0000126 (has_spatiotemporal_occupant)
+ * @owlAxioms rdfs:domain BFO_0000003; rdfs:range BFO_0000011; owl:inverseOf BFO_0000126
+ */
+export interface IOccupiesSpatiotemporalRegion extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractOccupiesSpatiotemporalRegion
+  extends AbstractObjectProperty
+  implements IOccupiesSpatiotemporalRegion {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class OccupiesSpatiotemporalRegion
+  extends AbstractOccupiesSpatiotemporalRegion
+  implements IOccupiesSpatiotemporalRegion {
+  override readonly metaClass = 'OccupiesSpatiotemporalRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000130' as const;
+  override readonly rdfsLabel = 'occupies spatiotemporal region' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000011' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000126' as const;
+}
+
+// ─── 66. HasSpatiotemporalOccupant (BFO_0000126) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000126
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "has spatiotemporal occupant"
+ * @definition (No explicit obo:IAO_0000115 declared on BFO_0000126; IAO_0000600 reads
+ *              "[copied from inverse property 'occupies spatiotemporal region']
+ *              p occupies_spatiotemporal_region s. (axiom label in BFO2 Reference:
+ *              [082-003])".)
+ * @bfoReferenceSection §3.1 Occurrent — SpatiotemporalRegion / Occurrent (inverse)
+ * @domain SpatiotemporalRegion (BFO_0000011)
+ * @range Occurrent (BFO_0000003)
+ * @owlAxioms rdfs:domain BFO_0000011; rdfs:range BFO_0000003
+ */
+export interface IHasSpatiotemporalOccupant extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasSpatiotemporalOccupant
+  extends AbstractObjectProperty
+  implements IHasSpatiotemporalOccupant {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasSpatiotemporalOccupant
+  extends AbstractHasSpatiotemporalOccupant
+  implements IHasSpatiotemporalOccupant {
+  override readonly metaClass = 'HasSpatiotemporalOccupant' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000126' as const;
+  override readonly rdfsLabel = 'has spatiotemporal occupant' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000011' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+}
+
+// ─── 67. ProjectsOntoSpatialRegion (BFO_0000151) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000151
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "projects onto spatial region at some time"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000151.)
+ * @bfoReferenceSection §3.1 Occurrent — SpatiotemporalRegion / SpatialRegion projection
+ * @domain SpatiotemporalRegion (BFO_0000011)
+ * @range SpatialRegion (BFO_0000006)
+ * @inverseOf BFO_0000152 (spatial_projection_of_spatiotemporal_at_some_time)
+ * @owlAxioms rdfs:domain BFO_0000011; rdfs:range BFO_0000006; owl:inverseOf BFO_0000152
+ */
+export interface IProjectsOntoSpatialRegion extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractProjectsOntoSpatialRegion
+  extends AbstractObjectProperty
+  implements IProjectsOntoSpatialRegion {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ProjectsOntoSpatialRegion
+  extends AbstractProjectsOntoSpatialRegion
+  implements IProjectsOntoSpatialRegion {
+  override readonly metaClass = 'ProjectsOntoSpatialRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000151' as const;
+  override readonly rdfsLabel = 'projects onto spatial region at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000011' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000006' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000152' as const;
+}
+
+// ─── 68. SpatialProjectionOfSpatiotemporal (BFO_0000152) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000152
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "spatial projection of spatiotemporal at some time"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000152.)
+ * @bfoReferenceSection §3.1 Occurrent — SpatialRegion / SpatiotemporalRegion (inverse projection)
+ * @domain SpatialRegion (BFO_0000006)
+ * @range SpatiotemporalRegion (BFO_0000011)
+ * @owlAxioms rdfs:domain BFO_0000006; rdfs:range BFO_0000011
+ */
+export interface ISpatialProjectionOfSpatiotemporal extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractSpatialProjectionOfSpatiotemporal
+  extends AbstractObjectProperty
+  implements ISpatialProjectionOfSpatiotemporal {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class SpatialProjectionOfSpatiotemporal
+  extends AbstractSpatialProjectionOfSpatiotemporal
+  implements ISpatialProjectionOfSpatiotemporal {
+  override readonly metaClass = 'SpatialProjectionOfSpatiotemporal' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000152' as const;
+  override readonly rdfsLabel = 'spatial projection of spatiotemporal at some time' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000006' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000011' as const;
+}
+
+// ─── 69. ProjectsOntoTemporalRegion (BFO_0000153) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000153
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent ExistsAt (BFO_0000108) — extended structurally below as
+ *   AbstractObjectProperty since AbstractExistsAt was authored by implementer #4
+ *   and we wish to keep the discriminant-narrowing surface unique to the leaf;
+ *   the rdfs:subPropertyOf parent is recorded in `subPropertyOf`.
+ * @rdfsLabel "projects onto temporal region"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000153.)
+ * @bfoReferenceSection §3.1 Occurrent — SpatiotemporalRegion / TemporalRegion projection
+ * @domain SpatiotemporalRegion (BFO_0000011)
+ * @range TemporalRegion (BFO_0000008)
+ * @inverseOf BFO_0000154 (temporal_projection_of_spatiotemporal)
+ * @subPropertyOf BFO_0000108 (exists_at)
+ * @owlAxioms rdfs:domain BFO_0000011; rdfs:range BFO_0000008;
+ *            rdfs:subPropertyOf BFO_0000108; owl:inverseOf BFO_0000154
+ */
+export interface IProjectsOntoTemporalRegion extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractProjectsOntoTemporalRegion
+  extends AbstractObjectProperty
+  implements IProjectsOntoTemporalRegion {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ProjectsOntoTemporalRegion
+  extends AbstractProjectsOntoTemporalRegion
+  implements IProjectsOntoTemporalRegion {
+  override readonly metaClass = 'ProjectsOntoTemporalRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000153' as const;
+  override readonly rdfsLabel = 'projects onto temporal region' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000011' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000008' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000154' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000108',
+  ] as const;
+}
+
+// ─── 70. DuringWhichExists (BFO_0000157) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000157
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "during which exists"
+ * @definition (No obo:IAO_0000115 declared on BFO_0000157. IAO_0000600 reads
+ *              "[copied from inverse property 'exists at'] b exists_at t means: b is
+ *              an entity which exists at some temporal region t. (axiom label in BFO2
+ *              Reference: [118-002])".)
+ * @bfoReferenceSection §2.1 Continuant / §3.1 Occurrent — temporal lifecycle (inverse)
+ * @domain TemporalRegion (BFO_0000008)
+ * @range Entity (BFO_0000001)
+ * @owlAxioms rdfs:domain BFO_0000008; rdfs:range BFO_0000001
+ */
+export interface IDuringWhichExists extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractDuringWhichExists
+  extends AbstractObjectProperty
+  implements IDuringWhichExists {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class DuringWhichExists
+  extends AbstractDuringWhichExists
+  implements IDuringWhichExists {
+  override readonly metaClass = 'DuringWhichExists' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000157' as const;
+  override readonly rdfsLabel = 'during which exists' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000008' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000001' as const;
+}
+
+// ─── 71. TemporalProjectionOfSpatiotemporal (BFO_0000154) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000154
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent DuringWhichExists (BFO_0000157)
+ * @rdfsLabel "temporal projection of spatiotemporal"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000154.)
+ * @bfoReferenceSection §3.1 Occurrent — TemporalRegion / SpatiotemporalRegion (inverse projection)
+ * @domain TemporalRegion (BFO_0000008)
+ * @range SpatiotemporalRegion (BFO_0000011)
+ * @subPropertyOf BFO_0000157 (during_which_exists)
+ * @owlAxioms rdfs:domain BFO_0000008; rdfs:range BFO_0000011;
+ *            rdfs:subPropertyOf BFO_0000157
+ */
+export interface ITemporalProjectionOfSpatiotemporal extends IDuringWhichExists {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractTemporalProjectionOfSpatiotemporal
+  extends AbstractDuringWhichExists
+  implements ITemporalProjectionOfSpatiotemporal {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class TemporalProjectionOfSpatiotemporal
+  extends AbstractTemporalProjectionOfSpatiotemporal
+  implements ITemporalProjectionOfSpatiotemporal {
+  override readonly metaClass = 'TemporalProjectionOfSpatiotemporal' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000154' as const;
+  override readonly rdfsLabel = 'temporal projection of spatiotemporal' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000008' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000011' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000157',
+  ] as const;
+}
+
+// ─── 72. OccupiesTemporalRegion (BFO_0000155) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000155
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent ExistsAt (BFO_0000108) — extended structurally as AbstractObjectProperty;
+ *   rdfs:subPropertyOf parent recorded in `subPropertyOf`.
+ * @rdfsLabel "occupies temporal region"
+ * @definition (No explicit obo:IAO_0000115 declared on BFO_0000155; IAO_0000600 reads
+ *              "p occupies_temporal_region t. This is a primitive relation between an
+ *              occurrent p and the temporal region t upon which the spatiotemporal
+ *              region p occupies_spatiotemporal_region projects. (axiom label in BFO2
+ *              Reference: [132-001])".)
+ * @bfoReferenceSection §3.1 Occurrent — Occurrent / TemporalRegion occupation
+ * @domain Occurrent (BFO_0000003)
+ * @range TemporalRegion (BFO_0000008)
+ * @inverseOf BFO_0000156 (has_temporal_occupant)
+ * @subPropertyOf BFO_0000108 (exists_at)
+ * @owlAxioms rdfs:domain BFO_0000003; rdfs:range BFO_0000008;
+ *            rdfs:subPropertyOf BFO_0000108; owl:inverseOf BFO_0000156
+ */
+export interface IOccupiesTemporalRegion extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractOccupiesTemporalRegion
+  extends AbstractObjectProperty
+  implements IOccupiesTemporalRegion {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class OccupiesTemporalRegion
+  extends AbstractOccupiesTemporalRegion
+  implements IOccupiesTemporalRegion {
+  override readonly metaClass = 'OccupiesTemporalRegion' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000155' as const;
+  override readonly rdfsLabel = 'occupies temporal region' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000008' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000156' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000108',
+  ] as const;
+}
+
+// ─── 73. HasTemporalOccupant (BFO_0000156) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000156
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent DuringWhichExists (BFO_0000157)
+ * @rdfsLabel "has temporal occupant"
+ * @definition (No explicit obo:IAO_0000115 declared on BFO_0000156; IAO_0000600 reads
+ *              "[copied from inverse property 'occupies temporal region'] p
+ *              occupies_temporal_region t. (axiom label in BFO2 Reference: [132-001])".)
+ * @bfoReferenceSection §3.1 Occurrent — TemporalRegion / Occurrent (inverse)
+ * @domain TemporalRegion (BFO_0000008)
+ * @range Occurrent (BFO_0000003)
+ * @subPropertyOf BFO_0000157 (during_which_exists)
+ * @owlAxioms rdfs:domain BFO_0000008; rdfs:range BFO_0000003;
+ *            rdfs:subPropertyOf BFO_0000157
+ */
+export interface IHasTemporalOccupant extends IDuringWhichExists {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasTemporalOccupant
+  extends AbstractDuringWhichExists
+  implements IHasTemporalOccupant {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasTemporalOccupant
+  extends AbstractHasTemporalOccupant
+  implements IHasTemporalOccupant {
+  override readonly metaClass = 'HasTemporalOccupant' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000156' as const;
+  override readonly rdfsLabel = 'has temporal occupant' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000008' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000003' as const;
+  readonly subPropertyOf = [
+    'http://purl.obolibrary.org/obo/BFO_0000157',
+  ] as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROCESS-PROFILE FAMILY — BFO_0000119, BFO_0000133
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 74. HasProfile (BFO_0000119) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000119
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "has profile"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000119.)
+ * @bfoReferenceSection §3.1 Occurrent — Process / ProcessProfile relation
+ * @domain Process (BFO_0000015)
+ * @range ProcessProfile (BFO_0000144)
+ * @owlAxioms rdfs:domain BFO_0000015; rdfs:range BFO_0000144
+ */
+export interface IHasProfile extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractHasProfile
+  extends AbstractObjectProperty
+  implements IHasProfile {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class HasProfile
+  extends AbstractHasProfile
+  implements IHasProfile {
+  override readonly metaClass = 'HasProfile' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000119' as const;
+  override readonly rdfsLabel = 'has profile' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000144' as const;
+}
+
+// ─── 75. ProcessProfileOf (BFO_0000133) ───
+/**
+ * @standard ISO/IEC 21838-2:2021 — Basic Formal Ontology (BFO) 2020
+ * @iri http://purl.obolibrary.org/obo/BFO_0000133
+ * @metaclass owl:ObjectProperty
+ * @isAbstract false
+ * @parent (root)
+ * @rdfsLabel "process profile of"
+ * @definition (No obo:IAO_0000115 / IAO_0000600 elucidation declared on BFO_0000133.)
+ * @bfoReferenceSection §3.1 Occurrent — ProcessProfile / Process relation (inverse)
+ * @domain ProcessProfile (BFO_0000144)
+ * @range Process (BFO_0000015)
+ * @inverseOf BFO_0000119 (has_profile)
+ * @owlAxioms rdfs:domain BFO_0000144; rdfs:range BFO_0000015; owl:inverseOf BFO_0000119
+ */
+export interface IProcessProfileOf extends IObjectProperty {
+  readonly metaClass: string;
+  readonly iri: string;
+}
+
+export abstract class AbstractProcessProfileOf
+  extends AbstractObjectProperty
+  implements IProcessProfileOf {
+  abstract override readonly metaClass: string;
+  abstract override readonly iri: string;
+}
+
+export class ProcessProfileOf
+  extends AbstractProcessProfileOf
+  implements IProcessProfileOf {
+  override readonly metaClass = 'ProcessProfileOf' as const;
+  override readonly iri = 'http://purl.obolibrary.org/obo/BFO_0000133' as const;
+  override readonly rdfsLabel = 'process profile of' as const;
+  override readonly domain = 'http://purl.obolibrary.org/obo/BFO_0000144' as const;
+  override readonly range = 'http://purl.obolibrary.org/obo/BFO_0000015' as const;
+  readonly inverseOf = 'http://purl.obolibrary.org/obo/BFO_0000119' as const;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// END Implementer #5: BFO Object Properties Part 2
+// (BFO 2020 ObjectProperty surface complete — pending audit)
+// ═══════════════════════════════════════════════════════════════════════════
